@@ -22,7 +22,9 @@ class Home extends StatelessWidget {
             ),
             IconButton(
               icon: Icon(CupertinoIcons.photo, color: Colors.black54, size: 30),
-              onPressed: () {},
+              onPressed: () {
+                Get.toNamed('/albums');
+              },
             ),
             IconButton(
               icon:
