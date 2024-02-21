@@ -1,4 +1,4 @@
-package com.example.flutter_test1
+package com.sigongan.broady_lite
 
 import io.flutter.embedding.android.FlutterActivity
 
