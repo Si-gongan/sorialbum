@@ -16,7 +16,15 @@ dependencies:
     sdk: flutter
   get:
   cupertino_icons:
-  photo_manager:
+  image_picker: ^1.0.7
+  path_provider:
+  path: 
+  sqflite:
+  typed_data:
+  http:
+  photo_manager: ^3.0.0-dev.5
+  photo_manager_image_provider:
+  exif:
 
 dev_dependencies:
   flutter_test:

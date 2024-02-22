@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart'; 
 import '../controllers/upload_controller.dart';
 import 'package:photo_manager/photo_manager.dart';
+import 'package:photo_manager_image_provider/photo_manager_image_provider.dart';
 
 class Albums extends GetView<UploadController> {
   const Albums({super.key});

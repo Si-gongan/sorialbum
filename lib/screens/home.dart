@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter/cupertino.dart';
+import '../helpers/image_service.dart';
+import '../controllers/local_images_controller.dart';
+import 'dart:io';
 
-class Home extends StatelessWidget {
-  const Home({super.key});
+class Home extends GetView<LocalImagesController> {
+  Home({super.key});
+
+  final imageService = ImageService();
 
   @override
   Widget build(BuildContext context) {
@@ -18,12 +23,24 @@ class Home extends StatelessWidget {
                 color: Colors.black54,
                 size: 30,
               ),
-              onPressed: () {},
+              onPressed: () async {
+                final image = await imageService.takePicture();
+                if (image!=null){
+                  await imageService.saveImageAndMetadata(image);
+                } else {
+                  // when canceled...
+                } 
+              },
             ),
             IconButton(
               icon: Icon(CupertinoIcons.photo, color: Colors.black54, size: 30),
-              onPressed: () {
-                Get.toNamed('/albums');
+              onPressed: () async {
+                final images = await imageService.pickImagesFromGallery();
+                if (images!.isNotEmpty){  
+                  await imageService.saveImagesAndMetadata(images);
+                } else {
+                  // when canceled...
+                }
               },
             ),
             IconButton(
@@ -36,38 +53,67 @@ class Home extends StatelessWidget {
           ]),
           backgroundColor: Colors.white,
         ),
-        body: Center(
-          child: Column(children: [
-            Expanded(
-              child: ListView.builder(
-                  physics: const BouncingScrollPhysics(),
-                  itemCount: 20,
-                  itemBuilder: (context, index) => Column(
-                        children: [
-                          Text(index.toString()),
-                          GridView.count(
-                              physics: const ClampingScrollPhysics(),
-                              shrinkWrap: true,
-                              crossAxisCount: 5,
-                              children: List.generate(
-                                  8,
-                                  (index2) => Card(
-                                      child: Text(index2.toString()),
-                                      color: Colors.white38)))
-                        ],
-                      )),
+        body: Obx(() {
+        // Obx를 사용하여 컨트롤러의 상태 변화를 감지합니다.
+        if (controller.images?.length == 0) {
+          return Center(child: Text('텅'));
+        } else {
+          return GridView.builder(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              crossAxisSpacing: 4,
+              mainAxisSpacing: 4,
             ),
-            ElevatedButton(
-                child: Text('to search'),
-                onPressed: () {
-                  Get.toNamed('/search');
-                }),
-            ElevatedButton(
-                child: Text('to detail'),
-                onPressed: () {
+            itemCount: controller.images?.length,
+            itemBuilder: (context, index) {
+              final image = controller.images?[index];
+              return GestureDetector(
+                onTap: () {
+                  controller.setCurrentIndex(index);
                   Get.toNamed('/image_detail');
-                })
-          ]),
-        ));
+                },
+                child: Image.file(
+                  File(image!.assetPath),
+                  fit: BoxFit.cover,
+                ),
+              );
+            },
+          );
+        }
+      }),
+        // Center(
+        //   child: Column(children: [
+        //     Expanded(
+        //       child: ListView.builder(
+        //           physics: const BouncingScrollPhysics(),
+        //           itemCount: 20,
+        //           itemBuilder: (context, index) => Column(
+        //                 children: [
+        //                   Text(index.toString()),
+        //                   GridView.count(
+        //                       physics: const ClampingScrollPhysics(),
+        //                       shrinkWrap: true,
+        //                       crossAxisCount: 5,
+        //                       children: List.generate(
+        //                           8,
+        //                           (index2) => Card(
+        //                               child: Text(index2.toString()),
+        //                               color: Colors.white38)))
+        //                 ],
+        //               )),
+        //     ),
+        //     ElevatedButton(
+        //         child: Text('to search'),
+        //         onPressed: () {
+        //           Get.toNamed('/search');
+        //         }),
+        //     ElevatedButton(
+        //         child: Text('to detail'),
+        //         onPressed: () {
+        //           Get.toNamed('/image_detail');
+        //         })
+        //   ]),
+        // )
+      );
   }
 }
