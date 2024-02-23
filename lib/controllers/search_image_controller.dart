@@ -2,30 +2,56 @@ import 'package:get/get.dart';
 import '../models/image.dart';
 import '../helpers/db_helper.dart';
 
-class LocalImagesController extends GetxController {
+class SearchImagesController extends GetxController {
   final Rxn<List<LocalImage>> _images = Rxn<List<LocalImage>>([]);
 
   final RxInt _index = 0.obs;
 
+  final Rx _result = false.obs;
+
   List<LocalImage>? get images => _images.value;
   int get index => _index.value;
+  bool get result => _result.value;
 
   final dbHelper = DatabaseHelper();
 
   @override
-  void onInit() {
-    super.onInit();
-    fetchImages();
+  void onClose() {
+    // 페이지를 벗어날 때 호출됩니다. 검색 결과를 초기화합니다.
+    clearSearchImages();
+    super.onClose();
   }
 
-  fetchImages() async {
-    final fetchedImages = await dbHelper.getAllImages();
-    _images.value = fetchedImages;
+  queryImages(String query) async {
+    // add query logic
+    if (query.isEmpty) {
+      setResult(false);
+      clearSearchImages();
+    } else {
+      setResult(true);
+      final queriedImages = await dbHelper.getAllImages();
+      if (queriedImages.isEmpty) {
+        clearSearchImages();
+      } else {
+        // TODO : image search logic
+        _images.value = queriedImages.reversed.toList();
+        _images.refresh();
+      }
+    }
+  }
+
+  void clearSearchImages() {
+    _images.value?.clear();
     _images.refresh();
   }
 
   void setCurrentIndex(int index) {
     _index.value = index;
+  }
+
+  void setResult(bool result) {
+    _result.value = result;
+    _result.refresh();
   }
 
   void addImage(LocalImage image) {

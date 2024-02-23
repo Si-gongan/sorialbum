@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:flutter/cupertino.dart';
 import '../helpers/image_service.dart';
 import '../controllers/local_images_controller.dart';
-import 'dart:io';
 
 class Home extends GetView<LocalImagesController> {
   Home({super.key});
@@ -53,27 +52,24 @@ class Home extends GetView<LocalImagesController> {
       ),
       body: Obx(() {
         // Obx를 사용하여 컨트롤러의 상태 변화를 감지합니다.
-        if (controller.images?.length == 0) {
-          return Center(child: Text('갤러리에 사진을 추가해보세요!'));
+        if (controller.images == null || controller.images!.isEmpty) {
+          return const Center(child: Text('갤러리에 사진을 추가해보세요!'));
         } else {
           return GridView.builder(
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 3,
               crossAxisSpacing: 4,
               mainAxisSpacing: 4,
             ),
-            itemCount: controller.images?.length,
+            itemCount: controller.images!.length,
             itemBuilder: (context, index) {
-              final image = controller.images?[index];
+              final image = controller.images![index];
               return GestureDetector(
                 onTap: () {
                   controller.setCurrentIndex(index);
                   Get.toNamed('/image_detail');
                 },
-                child: Image.file(
-                  File(image!.assetPath),
-                  fit: BoxFit.cover,
-                ),
+                child: Hero(tag: 'image_$index', child: Image.asset(image.assetPath, fit: BoxFit.cover))
               );
             },
           );

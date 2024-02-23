@@ -15,6 +15,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   get:
+  get_storage:
   cupertino_icons:
   image_picker: ^1.0.7
   path_provider:
