@@ -13,50 +13,48 @@ class Home extends GetView<LocalImagesController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          title:
-              Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-            IconButton(
-              icon: Icon(
-                CupertinoIcons.camera_fill,
-                color: Colors.black54,
-                size: 30,
-              ),
-              onPressed: () async {
-                final image = await imageService.takePicture();
-                if (image!=null){
-                  await imageService.saveImageAndMetadata(image);
-                } else {
-                  // when canceled...
-                } 
-              },
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        title: Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
+          IconButton(
+            icon: Icon(
+              CupertinoIcons.camera_fill,
+              color: Colors.black54,
+              size: 30,
             ),
-            IconButton(
-              icon: Icon(CupertinoIcons.photo, color: Colors.black54, size: 30),
-              onPressed: () async {
-                final images = await imageService.pickImagesFromGallery();
-                if (images!.isNotEmpty){  
-                  await imageService.saveImagesAndMetadata(images);
-                } else {
-                  // when canceled...
-                }
-              },
-            ),
-            IconButton(
-              icon:
-                  Icon(CupertinoIcons.search, color: Colors.black54, size: 30),
-              onPressed: () {
-                Get.toNamed('/search');
-              },
-            )
-          ]),
-          backgroundColor: Colors.white,
-        ),
-        body: Obx(() {
+            onPressed: () async {
+              final image = await imageService.takePicture();
+              if (image != null) {
+                await imageService.saveImageAndMetadata(image);
+              } else {
+                // when canceled...
+              }
+            },
+          ),
+          IconButton(
+            icon: Icon(CupertinoIcons.photo, color: Colors.black54, size: 30),
+            onPressed: () async {
+              final images = await imageService.pickImagesFromGallery();
+              if (images!.isNotEmpty) {
+                await imageService.saveImagesAndMetadata(images);
+              } else {
+                // when canceled...
+              }
+            },
+          ),
+          IconButton(
+            icon: Icon(CupertinoIcons.search, color: Colors.black54, size: 30),
+            onPressed: () {
+              Get.toNamed('/search');
+            },
+          )
+        ]),
+        backgroundColor: Colors.white,
+      ),
+      body: Obx(() {
         // Obx를 사용하여 컨트롤러의 상태 변화를 감지합니다.
         if (controller.images?.length == 0) {
-          return Center(child: Text('텅'));
+          return Center(child: Text('갤러리에 사진을 추가해보세요!'));
         } else {
           return GridView.builder(
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -81,39 +79,39 @@ class Home extends GetView<LocalImagesController> {
           );
         }
       }),
-        // Center(
-        //   child: Column(children: [
-        //     Expanded(
-        //       child: ListView.builder(
-        //           physics: const BouncingScrollPhysics(),
-        //           itemCount: 20,
-        //           itemBuilder: (context, index) => Column(
-        //                 children: [
-        //                   Text(index.toString()),
-        //                   GridView.count(
-        //                       physics: const ClampingScrollPhysics(),
-        //                       shrinkWrap: true,
-        //                       crossAxisCount: 5,
-        //                       children: List.generate(
-        //                           8,
-        //                           (index2) => Card(
-        //                               child: Text(index2.toString()),
-        //                               color: Colors.white38)))
-        //                 ],
-        //               )),
-        //     ),
-        //     ElevatedButton(
-        //         child: Text('to search'),
-        //         onPressed: () {
-        //           Get.toNamed('/search');
-        //         }),
-        //     ElevatedButton(
-        //         child: Text('to detail'),
-        //         onPressed: () {
-        //           Get.toNamed('/image_detail');
-        //         })
-        //   ]),
-        // )
-      );
+      // Center(
+      //   child: Column(children: [
+      //     Expanded(
+      //       child: ListView.builder(
+      //           physics: const BouncingScrollPhysics(),
+      //           itemCount: 20,
+      //           itemBuilder: (context, index) => Column(
+      //                 children: [
+      //                   Text(index.toString()),
+      //                   GridView.count(
+      //                       physics: const ClampingScrollPhysics(),
+      //                       shrinkWrap: true,
+      //                       crossAxisCount: 5,
+      //                       children: List.generate(
+      //                           8,
+      //                           (index2) => Card(
+      //                               child: Text(index2.toString()),
+      //                               color: Colors.white38)))
+      //                 ],
+      //               )),
+      //     ),
+      //     ElevatedButton(
+      //         child: Text('to search'),
+      //         onPressed: () {
+      //           Get.toNamed('/search');
+      //         }),
+      //     ElevatedButton(
+      //         child: Text('to detail'),
+      //         onPressed: () {
+      //           Get.toNamed('/image_detail');
+      //         })
+      //   ]),
+      // )
+    );
   }
 }
