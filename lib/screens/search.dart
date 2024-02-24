@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import '../controllers/search_image_controller.dart';
 import 'dart:io';
@@ -55,7 +56,51 @@ class Search extends GetView<SearchImagesController> {
             actions: []),
         body: Obx(() {
           if (!controller.result) {
-            return const Center(child: Text('초기화면'));
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  margin: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('최근 검색',
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.w600)),
+                      InkWell(
+                        onTap: () {
+                          controller.clearSearchHistory();
+                        },
+                        child: Text('전체 삭제',
+                            style: TextStyle(
+                                fontSize: 14, fontWeight: FontWeight.w400)),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: ListView.builder(
+                      physics: const BouncingScrollPhysics(),
+                      itemCount: controller.queries?.length ?? 0,
+                      itemBuilder: (context, index) {
+                        String query =
+                            controller.queries!.reversed.toList()[index];
+                        return InkWell(
+                          onTap: () {
+                            focusNode.unfocus();
+                            textEditingController.text = query;
+                            controller.queryImages(query);
+                          },
+                          child: Container(
+                              margin: const EdgeInsets.symmetric(
+                                  vertical: 3, horizontal: 20),
+                              child:
+                                  Text(query, style: TextStyle(fontSize: 14))),
+                        );
+                      }),
+                )
+              ],
+            );
           } else {
             if (controller.images == null || controller.images!.isEmpty) {
               return const Center(child: Text('검색 결과가 없습니다'));

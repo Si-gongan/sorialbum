@@ -1,7 +1,7 @@
 import 'package:get_storage/get_storage.dart';
 
 class SearchHistoryManager {
-  final GetStorage _storage = GetStorage();
+  final GetStorage _storage = GetStorage('search');
   final String _historyKey = 'searchHistory';
 
   // 검색 기록 저장
@@ -22,7 +22,7 @@ class SearchHistoryManager {
       // dynamic 리스트의 각 요소를 String으로 변환하여 새 리스트에 추가
       history = historyDynamic.map((item) => item.toString()).toList();
     }
-
+    print(history);
     return history;
   }
 

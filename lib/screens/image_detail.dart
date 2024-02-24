@@ -21,7 +21,7 @@ class ImageDetail extends StatelessWidget {
     return Obx(() => Scaffold(
         appBar: AppBar(
             centerTitle: true,
-            title: Container(
+            title: SizedBox(
               width: 200,
               child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -32,7 +32,7 @@ class ImageDetail extends StatelessWidget {
                       style: TextStyle(fontSize: 18),
                     ),
                     Text(
-                        DateFormat('h시 m분 a', 'ko_KR').format(
+                        DateFormat('a h시 m분', 'ko_KR').format(
                             controller.images![controller.index].createdAt),
                         style: TextStyle(fontSize: 14)),
                   ]),

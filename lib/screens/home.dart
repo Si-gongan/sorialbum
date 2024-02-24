@@ -155,7 +155,7 @@ class Home extends GetView<LocalImagesController> {
             color: Colors.black.withOpacity(0.15))
       ]),
       child: ClipRRect(
-        borderRadius: const BorderRadius.all(Radius.circular(7)),
+        borderRadius: const BorderRadius.all(Radius.circular(20)),
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 7, sigmaY: 7),
           child: Container(
@@ -163,7 +163,7 @@ class Home extends GetView<LocalImagesController> {
             height: 24, // 흐림 효과를 적용할 컨테이너의 높이
             decoration: BoxDecoration(
                 color: Colors.grey.shade200.withOpacity(0.6), // 반투명 배경 색상
-                borderRadius: BorderRadius.circular(7)), // 경계선 둥글게 처리),
+                borderRadius: BorderRadius.circular(20)), // 경계선 둥글게 처리),
             child: Center(
               child: Text(
                 text,

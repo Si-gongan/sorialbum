@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:timezone/data/latest.dart' as tz;
-import 'package:timezone/timezone.dart' as tz;
 
 import 'screens/home.dart';
 import 'screens/search.dart';
@@ -12,7 +11,6 @@ import 'screens/albums.dart';
 import 'screens/album.dart';
 
 import 'bindings/bindings.dart';
-import 'helpers/utils.dart';
 
 void main() async {
   await GetStorage.init();

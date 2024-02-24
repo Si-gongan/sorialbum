@@ -44,8 +44,6 @@ class SearchImagesController extends GetxController {
       addSearchHistory(query);
 
       final queriedImages = await dbHelper.getAllImages();
-      print('queried!');
-      print(queriedImages);
 
       if (queriedImages.isEmpty) {
         clearSearchImages();
@@ -65,7 +63,7 @@ class SearchImagesController extends GetxController {
   void clearSearchHistory() {
     _queries.value?.clear();
     _queries.refresh();
-    clearSearchHistory();
+    searchHistoryManager.clearSearchHistory();
   }
 
   void addSearchHistory(String query) {
