@@ -18,7 +18,7 @@ class DatabaseHelper {
       path.join(path_, 'galleryApp.db'),
       onCreate: (db, version) {
         return db.execute(
-          'CREATE TABLE images(id INTEGER PRIMARY KEY AUTOINCREMENT, assetPath TEXT, caption TEXT, description TEXT, userMemo TEXT, generalTags TEXT, alertTags TEXT, vector TEXT, createdAt TEXT)',
+          'CREATE TABLE images(id INTEGER PRIMARY KEY AUTOINCREMENT, assetPath TEXT, thumbAssetPath TEXT, caption TEXT, description TEXT, userMemo TEXT, generalTags TEXT, alertTags TEXT, vector TEXT, createdAt TEXT)',
         );
       },
       version: 1,
@@ -58,7 +58,8 @@ class DatabaseHelper {
 
   Future<void> updateImage(LocalImage image) async {
     final db = await database;
-    await db.update('images', image.toMap(), where: 'id = ?', whereArgs: [image.id]);
+    await db.update('images', image.toMap(),
+        where: 'id = ?', whereArgs: [image.id]);
   }
 
   Future<void> deleteImage(int id) async {
@@ -68,7 +69,8 @@ class DatabaseHelper {
 
   Future<List<LocalImage>> getAllImages() async {
     final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query('images');
+    final List<Map<String, dynamic>> maps =
+        await db.query('images', orderBy: 'createdAt DESC');
     return List.generate(maps.length, (i) {
       return LocalImage.fromMap(maps[i]);
     });
@@ -90,24 +92,25 @@ class DatabaseHelper {
   }
 
   Future<List<LocalImage>> queryImagesBySimilarity(String query) async {
-  final queryVec = [.0]; // await text2vec(query); // 텍스트 쿼리를 벡터로 변환
-  final db = await database;
-  final List<Map<String, dynamic>> maps = await db.query('images');
-  List<LocalImage> images = List.generate(maps.length, (i) {
-    return LocalImage.fromMap(maps[i]);
-  });
+    final queryVec = [.0]; // await text2vec(query); // 텍스트 쿼리를 벡터로 변환
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query('images');
+    List<LocalImage> images = List.generate(maps.length, (i) {
+      return LocalImage.fromMap(maps[i]);
+    });
 
-  // 각 이미지의 vector와 쿼리 벡터 간 코사인 유사도 계산
-  final similarityScores = images.map((image) {
-    final imageVec = image.vector?.map((e) => e.toDouble()).toList() ?? [];
-    return {
-      'image': image,
-      'similarity': cosineSimilarity(queryVec, imageVec),
+    // 각 이미지의 vector와 쿼리 벡터 간 코사인 유사도 계산
+    final similarityScores = images.map((image) {
+      final imageVec = image.vector?.map((e) => e.toDouble()).toList() ?? [];
+      return {
+        'image': image,
+        'similarity': cosineSimilarity(queryVec, imageVec),
       };
     }).toList();
 
     // 유사도에 따라 정렬
-    similarityScores.sort((a, b) => (b['similarity'] as double).compareTo(a['similarity'] as double));
+    similarityScores.sort((a, b) =>
+        (b['similarity'] as double).compareTo(a['similarity'] as double));
 
     // 정렬된 이미지 리스트 반환
     return similarityScores.map((e) => e['image'] as LocalImage).toList();
