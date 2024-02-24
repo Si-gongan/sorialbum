@@ -65,12 +65,13 @@ class Home extends GetView<LocalImagesController> {
             itemBuilder: (context, index) {
               final image = controller.images![index];
               return GestureDetector(
-                onTap: () {
-                  controller.setCurrentIndex(index);
-                  Get.toNamed('/image_detail');
-                },
-                child: Hero(tag: 'image_$index', child: Image.asset(image.assetPath, fit: BoxFit.cover))
-              );
+                  onTap: () {
+                    controller.setCurrentIndex(index);
+                    Get.toNamed('/image_detail');
+                  },
+                  child: Hero(
+                      tag: 'image_$index',
+                      child: Image.asset(image.assetPath, fit: BoxFit.cover)));
             },
           );
         }
