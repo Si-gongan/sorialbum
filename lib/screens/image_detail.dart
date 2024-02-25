@@ -29,12 +29,12 @@ class ImageDetail extends StatelessWidget {
                     Text(
                       DateFormat('yyyy년 M월 d일', 'ko_KR').format(
                           controller.images![controller.index].createdAt),
-                      style: TextStyle(fontSize: 18),
+                      style: const TextStyle(fontSize: 18),
                     ),
                     Text(
                         DateFormat('a h시 m분', 'ko_KR').format(
                             controller.images![controller.index].createdAt),
-                        style: TextStyle(fontSize: 14)),
+                        style: const TextStyle(fontSize: 14)),
                   ]),
             )),
         body: Column(
@@ -42,22 +42,20 @@ class ImageDetail extends StatelessWidget {
           children: [
             SizedBox(
               height: 400,
-              child: Expanded(
-                child: PageView.builder(
-                  itemCount: controller.images!.length,
-                  controller: PageController(
-                      viewportFraction: 1, initialPage: controller.index),
-                  onPageChanged: controller.setCurrentIndex,
-                  itemBuilder: (context, index) {
-                    final image = controller.images![index];
-                    return Hero(
-                        tag: arguments == 'search'
-                            ? 'search_image_$index'
-                            : 'image_$index',
-                        child: Image.file(File(image.assetPath),
-                            fit: BoxFit.contain));
-                  },
-                ),
+              child: PageView.builder(
+                itemCount: controller.images!.length,
+                controller: PageController(
+                    viewportFraction: 1, initialPage: controller.index),
+                onPageChanged: controller.setCurrentIndex,
+                itemBuilder: (context, index) {
+                  final image = controller.images![index];
+                  return Hero(
+                      tag: arguments == 'search'
+                          ? 'search_image_$index'
+                          : 'image_$index',
+                      child: Image.file(File(image.assetPath),
+                          fit: BoxFit.contain));
+                },
               ),
             ),
             const SizedBox(height: 20),
