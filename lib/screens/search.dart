@@ -39,7 +39,7 @@ class Search extends GetView<SearchImagesController> {
                 onEditingComplete: () {},
                 onChanged: (value) {
                   if (value.isEmpty) {
-                    focusNode.unfocus();
+                    // focusNode.unfocus();
                     controller.setResult(false);
                   }
                 },
