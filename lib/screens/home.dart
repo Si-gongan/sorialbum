@@ -28,7 +28,7 @@ class Home extends GetView<LocalImagesController> {
               onPressed: () async {
                 final image = await imageService.takePicture();
                 if (image != null) {
-                  await imageService.saveImageAndMetadata(image);
+                  await imageService.saveImagesAndMetadata([image]);
                 } else {
                   // when canceled...
                 }
@@ -84,61 +84,62 @@ class Home extends GetView<LocalImagesController> {
                             style: const TextStyle(
                                 fontSize: 20, fontWeight: FontWeight.w600)),
                       ),
-                      ...dateGroups.keys.map((date) {
-                        List<LocalImage> dateImages = dateGroups[date]!;
-                        return GridView.count(
-                          physics: const ClampingScrollPhysics(),
-                          shrinkWrap: true,
-                          crossAxisCount: 4,
-                          crossAxisSpacing: 2,
-                          mainAxisSpacing: 2,
-                          children: List.generate(dateImages.length, (index) {
-                            final image = dateImages[index];
-                            if (index == 0) {
-                              String dateString =
-                                  "${int.parse(date.split('-')[2])}일";
-                              return GestureDetector(
-                                onTap: () {
-                                  controller.setCurrentIndex(image.countId!);
-                                  Get.toNamed('/image_detail');
-                                },
-                                child: Stack(
-                                  fit: StackFit.expand,
-                                  children: [
-                                    Hero(
-                                      tag: 'image_${image.countId}',
-                                      child: Image.file(
+                      for (int i = 0; i < dateGroups.keys.length; i++)
+                        Container(
+                          margin: EdgeInsets.only(bottom: i < dateGroups.keys.length - 1 ? 2 : 0),
+                          child: GridView.count(
+                            physics: const ClampingScrollPhysics(),
+                            shrinkWrap: true,
+                            crossAxisCount: 4,
+                            crossAxisSpacing: 2,
+                            mainAxisSpacing: 2,
+                            children: List.generate(dateGroups[dateGroups.keys.elementAt(i)]!.length, (index) {
+                              final image = dateGroups[dateGroups.keys.elementAt(i)]![index];
+                              if (index == 0) {
+                                String dateString =
+                                    "${int.parse(dateGroups.keys.elementAt(i).split('-')[2])}일";
+                                return GestureDetector(
+                                  onTap: () {
+                                    controller.setCurrentIndex(image.countId!);
+                                    Get.toNamed('/image_detail');
+                                  },
+                                  child: Stack(
+                                    fit: StackFit.expand,
+                                    children: [
+                                      Hero(
+                                        tag: 'image_${image.countId}',
+                                        child: Image.file(
+                                          File(image.thumbAssetPath ??
+                                              image.assetPath),
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
+                                      Positioned(
+                                          top: 5,
+                                          left: 5,
+                                          child:
+                                              _dateBlurredContainer(dateString)),
+                                    ],
+                                  ),
+                                );
+                              } else {
+                                return GestureDetector(
+                                  onTap: () {
+                                    controller.setCurrentIndex(image.countId!);
+                                    Get.toNamed('/image_detail');
+                                  },
+                                  child: Hero(
+                                    tag: 'image_${image.countId}',
+                                    child: Image.file(
                                         File(image.thumbAssetPath ??
                                             image.assetPath),
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
-                                    Positioned(
-                                        top: 5,
-                                        left: 5,
-                                        child:
-                                            _dateBlurredContainer(dateString)),
-                                  ],
-                                ),
-                              );
-                            } else {
-                              return GestureDetector(
-                                onTap: () {
-                                  controller.setCurrentIndex(image.countId!);
-                                  Get.toNamed('/image_detail');
-                                },
-                                child: Hero(
-                                  tag: 'image_${image.countId}',
-                                  child: Image.file(
-                                      File(image.thumbAssetPath ??
-                                          image.assetPath),
-                                      fit: BoxFit.cover),
-                                ),
-                              );
-                            }
-                          }),
-                        );
-                      }),
+                                        fit: BoxFit.cover),
+                                  ),
+                                );
+                              }
+                            }),
+                          ),
+                        )
                     ],
                   );
                 });

@@ -22,7 +22,6 @@ class SearchHistoryManager {
       // dynamic 리스트의 각 요소를 String으로 변환하여 새 리스트에 추가
       history = historyDynamic.map((item) => item.toString()).toList();
     }
-    print(history);
     return history;
   }
 

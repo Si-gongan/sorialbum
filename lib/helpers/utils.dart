@@ -1,7 +1,10 @@
 import 'dart:math';
 import 'package:timezone/timezone.dart';
 
-double cosineSimilarity(List<double> vec1, List<double> vec2) {
+double cosineSimilarity(List<double>? vec1, List<double>? vec2) {
+  if(vec1 == null || vec2 == null || vec1.isEmpty || vec2.isEmpty) {
+    return 0;
+  }
   double dotProduct = 0.0;
   double normA = 0.0;
   double normB = 0.0;

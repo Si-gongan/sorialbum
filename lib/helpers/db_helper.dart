@@ -1,7 +1,6 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart' as path;
 import '../models/image.dart';
-import 'utils.dart';
 
 class DatabaseHelper {
   Database? _database;
@@ -59,12 +58,12 @@ class DatabaseHelper {
   Future<void> updateImage(LocalImage image) async {
     final db = await database;
     await db.update('images', image.toMap(),
-        where: 'id = ?', whereArgs: [image.id]);
+        where: 'assetPath = ?', whereArgs: [image.assetPath]);
   }
 
-  Future<void> deleteImage(int id) async {
+  Future<void> deleteImage(LocalImage image) async {
     final db = await database;
-    await db.delete('images', where: 'id = ?', whereArgs: [id]);
+    await db.delete('images', where: 'assetPath = ?', whereArgs: [image.assetPath]);
   }
 
   Future<List<LocalImage>> getAllImages() async {
@@ -89,30 +88,5 @@ class DatabaseHelper {
     return List.generate(maps.length, (i) {
       return LocalImage.fromMap(maps[i]);
     });
-  }
-
-  Future<List<LocalImage>> queryImagesBySimilarity(String query) async {
-    final queryVec = [.0]; // await text2vec(query); // 텍스트 쿼리를 벡터로 변환
-    final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query('images');
-    List<LocalImage> images = List.generate(maps.length, (i) {
-      return LocalImage.fromMap(maps[i]);
-    });
-
-    // 각 이미지의 vector와 쿼리 벡터 간 코사인 유사도 계산
-    final similarityScores = images.map((image) {
-      final imageVec = image.vector?.map((e) => e.toDouble()).toList() ?? [];
-      return {
-        'image': image,
-        'similarity': cosineSimilarity(queryVec, imageVec),
-      };
-    }).toList();
-
-    // 유사도에 따라 정렬
-    similarityScores.sort((a, b) =>
-        (b['similarity'] as double).compareTo(a['similarity'] as double));
-
-    // 정렬된 이미지 리스트 반환
-    return similarityScores.map((e) => e['image'] as LocalImage).toList();
   }
 }

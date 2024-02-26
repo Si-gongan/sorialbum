@@ -4,7 +4,7 @@ class _Image {
   int? id;
   int? countId;
 
-  String? caption = DateTime.now().toString();
+  String? caption;
   String? description = 'sample description';
   String? userMemo = 'sample user memo';
 
@@ -53,7 +53,7 @@ class LocalImage extends _Image {
     localImage.alertTags = map['alertTags']?.split(',');
     localImage.vector = map['vector']
         ?.split(',')
-        .map((e) => double.tryParse(e) ?? 0.0)
+        .map((e) => double.tryParse(e))
         .toList()
         .cast<double>(); // 문자열을 List<double>로 변환
     localImage.createdAt = DateTime.parse(map['createdAt']);

@@ -40,7 +40,7 @@ class Search extends GetView<SearchImagesController> {
                 onChanged: (value) {
                   if (value.isEmpty) {
                     // focusNode.unfocus();
-                    controller.setResult(false);
+                    controller.setState('initial');
                   }
                 },
                 onSubmitted: (value) {
@@ -55,7 +55,9 @@ class Search extends GetView<SearchImagesController> {
             ),
             actions: []),
         body: Obx(() {
-          if (!controller.result) {
+          if (controller.state == 'loading') {
+            return Center(child: CircularProgressIndicator());
+          } else if (controller.state == 'initial') {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -71,7 +73,7 @@ class Search extends GetView<SearchImagesController> {
                         onTap: () {
                           controller.clearSearchHistory();
                         },
-                        child: Text('전체 삭제',
+                        child: const Text('전체 삭제',
                             style: TextStyle(
                                 fontSize: 14, fontWeight: FontWeight.w400)),
                       ),

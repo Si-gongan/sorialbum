@@ -2,6 +2,8 @@ import 'package:get/get.dart';
 import '../models/image.dart';
 import '../helpers/db_helper.dart';
 import '../helpers/storage_helper.dart';
+import '../helpers/api_service.dart';
+import '../helpers/utils.dart';
 
 class SearchImagesController extends GetxController {
   final Rxn<List<LocalImage>> _images = Rxn<List<LocalImage>>([]);
@@ -10,16 +12,17 @@ class SearchImagesController extends GetxController {
   // index of current viewing image
   final RxInt _index = 0.obs;
 
-  // true only after the query entered
-  final Rx _result = false.obs;
+  // searching state
+  final Rx _state = 'initial'.obs; // 'initial', 'loading', 'displayed'
 
   List<LocalImage>? get images => _images.value;
   List<String>? get queries => _queries.value;
   int get index => _index.value;
-  bool get result => _result.value;
+  String get state => _state.value;
 
   final dbHelper = DatabaseHelper();
   final searchHistoryManager = SearchHistoryManager();
+  final apiService = ApiService();
 
   @override
   void onInit() {
@@ -35,22 +38,35 @@ class SearchImagesController extends GetxController {
   }
 
   void queryImages(String query) async {
-    // add query logic
+    setState('loading');
+
     if (query.isEmpty) {
-      setResult(false);
       clearSearchImages();
+      setState('initial');
     } else {
-      setResult(true);
       addSearchHistory(query);
 
-      final queriedImages = await dbHelper.getAllImages();
+      List<LocalImage> images = await dbHelper.getAllImages();
+      // 유사도 기반 정렬
+      List<double> queryVec = await apiService.fetchTextEmbedding(query);
+      final similarityScores = images.map((image) {
+        final imageVec = image.vector;
+        return {
+          'image': image,
+          'similarity': cosineSimilarity(queryVec, imageVec),
+        };
+      }).toList();
+      similarityScores.sort((a, b) =>
+          (b['similarity'] as double).compareTo(a['similarity'] as double));
+      final queriedImages = similarityScores.map((e) => e['image'] as LocalImage).toList();
 
       if (queriedImages.isEmpty) {
         clearSearchImages();
+        setState('displayed');
       } else {
-        // TODO : image search logic
         _images.value = queriedImages;
         _images.refresh();
+        setState('displayed');
       }
     }
   }
@@ -72,9 +88,9 @@ class SearchImagesController extends GetxController {
     searchHistoryManager.saveSearchQuery(query);
   }
 
-  void setResult(bool result) {
-    _result.value = result;
-    _result.refresh();
+  void setState(String state) {
+    _state.value = state;
+    _state.refresh();
   }
 
   void setCurrentIndex(int index) {

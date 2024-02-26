@@ -38,12 +38,38 @@ void main() async {
       GetPage(
           name: '/album', page: () => const Album(), binding: UploadBinding()),
     ],
-    localizationsDelegates: [
+    theme: ThemeData(
+      useMaterial3: true,
+
+      // Define the default brightness and colors.
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: Colors.blueAccent,
+        // ···
+        brightness: Brightness.light,
+      ),
+
+      // Define the default `TextTheme`. Use this to specify the default
+      // text styling for headlines, titles, bodies of text, and more.
+      textTheme: const TextTheme(
+        displayLarge: TextStyle(
+          fontSize: 72,
+          fontWeight: FontWeight.bold,
+        ),
+        // ···
+        // titleLarge: GoogleFonts.oswald(
+        //   fontSize: 30,
+        //   fontStyle: FontStyle.italic,
+        // ),
+        // bodyMedium: GoogleFonts.merriweather(),
+        // displaySmall: GoogleFonts.pacifico(),
+      ),
+    ),
+    localizationsDelegates: const [
       GlobalMaterialLocalizations.delegate,
       GlobalWidgetsLocalizations.delegate,
       GlobalCupertinoLocalizations.delegate,
     ],
-    supportedLocales: [
+    supportedLocales: const [
       Locale('en'), // English
       Locale('ko'), // Korean
     ],
