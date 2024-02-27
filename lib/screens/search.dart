@@ -61,7 +61,7 @@ class Search extends GetView<SearchImagesController> {
             actions: []),
         body: Obx(() {
           if (controller.state == 'loading') {
-            return const Center(child: CupertinoActivityIndicator(radius: 20));
+            return const Center(child: CupertinoActivityIndicator(radius: 16));
           } else if (controller.state == 'initial') {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -103,7 +103,7 @@ class Search extends GetView<SearchImagesController> {
                               margin: const EdgeInsets.symmetric(
                                   vertical: 3, horizontal: 20),
                               child:
-                                  Text(query, style: TextStyle(fontSize: 14))),
+                                  Text(query, style: const TextStyle(fontSize: 14))),
                         );
                       }),
                 )

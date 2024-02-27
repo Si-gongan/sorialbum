@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'db_helper.dart';
@@ -34,7 +35,6 @@ class ImageService {
   }
 
   Future<void> saveImagesAndMetadata(List<XFile> pickedFiles) async {
-    Stopwatch stopwatch = Stopwatch()..start();
     final List<File> imageFiles =
         await Future.wait(pickedFiles.map((file) async {
       final File imageFile = File(file.path);
@@ -59,11 +59,19 @@ class ImageService {
       localImages.add(localImage);
     }
 
-    stopwatch.stop();
-    print(stopwatch.elapsed);
-
     // UI update
     controller.addImages(localImages);
+    //  Get.snackbar(
+    //   '이미지 불러오기 완료', // 제목
+    //   '총 ${localImages.length}개의 이미지를 성공적으로 불러왔습니다.', // 메시지
+    //   backgroundColor: Colors.grey[800], // 배경색 설정
+    //   colorText: Colors.white, // 텍스트 색상 설정
+    //   snackPosition: SnackPosition.BOTTOM, // 화면 하단에 위치
+    //   margin: EdgeInsets.all(0), // 마진 제거
+    //   padding: EdgeInsets.fromLTRB(16, 16, 16, 24), // 좌우 패딩 조정
+    //   duration: Duration(seconds: 4), // 지속 시간 설정
+    //   snackStyle: SnackStyle.GROUNDED,
+    // );
 
     // second stage: get cloud urls
     List<String> imageUrls = await _apiService.fetchImageUrls(imageFiles);
@@ -92,6 +100,17 @@ class ImageService {
 
     await dbHelper.insertImages(localImages);
     controller.updateImages(localImages);
+    Get.snackbar(
+      '이미지 캡션 생성 완료', // 제목
+      '총 ${localImages.length}개의 이미지 캡션 생성이 완료되었습니다.', // 메시지
+      backgroundColor: Colors.grey[800], // 배경색 설정
+      colorText: Colors.white, // 텍스트 색상 설정
+      snackPosition: SnackPosition.BOTTOM, // 화면 하단에 위치
+      margin: EdgeInsets.all(0), // 마진 제거
+      padding: EdgeInsets.fromLTRB(16, 16, 16, 24), // 좌우 패딩 조정
+      duration: Duration(seconds: 4), // 지속 시간 설정
+      snackStyle: SnackStyle.GROUNDED,
+    );
   }
 }
 
