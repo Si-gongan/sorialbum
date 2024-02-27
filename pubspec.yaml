@@ -21,6 +21,7 @@ dependencies:
   path_provider:
   path: 
   sqflite:
+  sqflite_common_ffi_web:
   typed_data:
   http:
   photo_manager: ^3.0.0-dev.5

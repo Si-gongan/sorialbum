@@ -6,13 +6,15 @@ class _Image {
 
   String? caption;
   String? description = 'sample description';
+  String? ocr = 'sample ocr text';
   String? userMemo = 'sample user memo';
 
-  List<String>? generalTags = ['gtag1', 'gtag2', 'gtag3'];
+  List<String>? generalTags;
   List<String>? alertTags = ['atag1', 'atag2'];
 
   List<double>? vector;
 
+  DateTime storedAt = DateTime.now().localTime;
   DateTime createdAt = DateTime.now().localTime;
 
   _Image();
@@ -21,7 +23,7 @@ class _Image {
 class LocalImage extends _Image {
   final String assetPath;
   String? thumbAssetPath;
-  String? assetEntityId;
+  String? imageUrl;
 
   LocalImage(this.assetPath);
 
@@ -30,12 +32,15 @@ class LocalImage extends _Image {
       'id': id,
       'assetPath': assetPath,
       'thumbAssetPath': thumbAssetPath,
+      'imageUrl': imageUrl,
       'caption': caption,
       'description': description,
+      'ocr': ocr,
       'userMemo': userMemo,
       'generalTags': generalTags?.join(','),
       'alertTags': alertTags?.join(','),
       'vector': vector?.join(','), // List<double>를 문자열로 변환
+      'storedAt': storedAt.toIso8601String(),
       'createdAt': createdAt.toIso8601String(),
     };
   }
@@ -46,8 +51,10 @@ class LocalImage extends _Image {
 
     localImage.id = map['id'];
     localImage.thumbAssetPath = map['thumbAssetPath'];
+    localImage.imageUrl = map['imageUrl'];
     localImage.caption = map['caption'];
     localImage.description = map['description'];
+    localImage.ocr = map['ocr'];
     localImage.userMemo = map['userMemo'];
     localImage.generalTags = map['generalTags']?.split(',');
     localImage.alertTags = map['alertTags']?.split(',');
@@ -56,6 +63,7 @@ class LocalImage extends _Image {
         .map((e) => double.tryParse(e))
         .toList()
         .cast<double>(); // 문자열을 List<double>로 변환
+    localImage.storedAt = DateTime.parse(map['storedAt']);
     localImage.createdAt = DateTime.parse(map['createdAt']);
 
     return localImage;

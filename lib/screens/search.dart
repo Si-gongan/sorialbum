@@ -20,8 +20,13 @@ class Search extends GetView<SearchImagesController> {
             title: Container(
               // decoration: BoxDecoration(border: Border.all(width:1)),
               child: CupertinoTextField(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 9, horizontal: 12),
+                maxLength: 70,
+                prefix: Container(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 0, horizontal: 9),
+                  child: const Icon(CupertinoIcons.search),
+                ),
+                padding: const EdgeInsets.fromLTRB(0, 9, 12, 9),
                 textAlignVertical: TextAlignVertical.center,
                 maxLines: 1,
                 decoration: const BoxDecoration(
@@ -56,13 +61,14 @@ class Search extends GetView<SearchImagesController> {
             actions: []),
         body: Obx(() {
           if (controller.state == 'loading') {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CupertinoActivityIndicator(radius: 20));
           } else if (controller.state == 'initial') {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  margin: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                  margin:
+                      const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [

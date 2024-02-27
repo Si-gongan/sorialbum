@@ -1,6 +1,8 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart' as path;
 import '../models/image.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 
 class DatabaseHelper {
   Database? _database;
@@ -13,11 +15,15 @@ class DatabaseHelper {
 
   Future<Database> initDB() async {
     final path_ = await getDatabasesPath();
+    if (kIsWeb) {
+      // 웹용 데이터베이스 초기화
+      databaseFactory = databaseFactoryFfiWeb;
+    }
     return await openDatabase(
       path.join(path_, 'galleryApp.db'),
       onCreate: (db, version) {
         return db.execute(
-          'CREATE TABLE images(id INTEGER PRIMARY KEY AUTOINCREMENT, assetPath TEXT, thumbAssetPath TEXT, caption TEXT, description TEXT, userMemo TEXT, generalTags TEXT, alertTags TEXT, vector TEXT, createdAt TEXT)',
+          'CREATE TABLE images(id INTEGER PRIMARY KEY AUTOINCREMENT, assetPath TEXT, thumbAssetPath TEXT, imageUrl TEXT, caption TEXT, description TEXT, ocr TEXT, userMemo TEXT, generalTags TEXT, alertTags TEXT, vector TEXT, storedAt TEXT, createdAt TEXT)',
         );
       },
       version: 1,
@@ -63,7 +69,8 @@ class DatabaseHelper {
 
   Future<void> deleteImage(LocalImage image) async {
     final db = await database;
-    await db.delete('images', where: 'assetPath = ?', whereArgs: [image.assetPath]);
+    await db
+        .delete('images', where: 'assetPath = ?', whereArgs: [image.assetPath]);
   }
 
   Future<List<LocalImage>> getAllImages() async {

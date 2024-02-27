@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import '../models/image.dart';
+import '../controllers/local_images_controller.dart';
 import '../helpers/db_helper.dart';
 import '../helpers/storage_helper.dart';
 import '../helpers/api_service.dart';
@@ -23,6 +24,7 @@ class SearchImagesController extends GetxController {
   final dbHelper = DatabaseHelper();
   final searchHistoryManager = SearchHistoryManager();
   final apiService = ApiService();
+  final localImagesController = Get.find<LocalImagesController>();
 
   @override
   void onInit() {
@@ -58,7 +60,8 @@ class SearchImagesController extends GetxController {
       }).toList();
       similarityScores.sort((a, b) =>
           (b['similarity'] as double).compareTo(a['similarity'] as double));
-      final queriedImages = similarityScores.map((e) => e['image'] as LocalImage).toList();
+      final queriedImages =
+          similarityScores.map((e) => e['image'] as LocalImage).toList();
 
       if (queriedImages.isEmpty) {
         clearSearchImages();
@@ -102,28 +105,20 @@ class SearchImagesController extends GetxController {
     _images.refresh();
   }
 
-  void addImage(LocalImage image) {
-    _images.value?.add(image);
-    _images.refresh();
-  }
-
-  void addImages(List<LocalImage> newImages) {
-    _images.value?.addAll(newImages);
-    _images.refresh();
-  }
-
   void updateImage(LocalImage updatedImage) {
-    // id를 기반으로 해당 이미지를 찾습니다.
-    int index =
-        _images.value!.indexWhere((image) => image.id == updatedImage.id);
+    int index = _images.value!
+        .indexWhere((image) => image.assetPath == updatedImage.assetPath);
     if (index != -1) {
       _images.value![index] = updatedImage;
-      _images.refresh(); // 이미지 리스트를 업데이트하고 UI에 반영하기 위해 refresh를 호출합니다.
+      _images.refresh();
     }
+    localImagesController.updateImage(updatedImage);
   }
 
-  // 이미지 삭제 - id를 기반으로 이미지 찾아 삭제
-  void removeImage(int id) {
-    _images.value!.removeWhere((image) => image.id == id);
+  void removeImage(LocalImage targetImage) {
+    _images.value!
+        .removeWhere((image) => image.assetPath == targetImage.assetPath);
+    _images.refresh();
+    localImagesController.removeImage(targetImage);
   }
 }

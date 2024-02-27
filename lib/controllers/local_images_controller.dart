@@ -56,7 +56,8 @@ class LocalImagesController extends GetxController {
 
     if (_images.value == null) {
       // 기존 이미지 리스트가 비어있는 경우, 새 이미지들을 정렬하여 바로 할당합니다.
-      _images.value = newImagesCopy..sort((a, b) => a.createdAt.compareTo(b.createdAt));
+      _images.value = newImagesCopy
+        ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
     } else {
       // 기존 이미지 리스트가 비어있지 않은 경우
       // 새 이미지들을 먼저 createdAt 기준으로 정렬합니다.
@@ -79,19 +80,18 @@ class LocalImagesController extends GetxController {
   }
 
   void updateImage(LocalImage updatedImage) {
-    // id를 기반으로 해당 이미지를 찾습니다.
-    int index =
-        _images.value!.indexWhere((image) => image.assetPath == updatedImage.assetPath);
+    int index = _images.value!
+        .indexWhere((image) => image.assetPath == updatedImage.assetPath);
     if (index != -1) {
       _images.value![index] = updatedImage;
-      _images.refresh(); // 이미지 리스트를 업데이트하고 UI에 반영하기 위해 refresh를 호출합니다.
+      _images.refresh();
     }
   }
 
   void updateImages(List<LocalImage> updatedImages) {
-    for (LocalImage updatedImage in updatedImages){
-      int index =
-        _images.value!.indexWhere((image) => image.assetPath == updatedImage.assetPath);
+    for (LocalImage updatedImage in updatedImages) {
+      int index = _images.value!
+          .indexWhere((image) => image.assetPath == updatedImage.assetPath);
       if (index != -1) {
         _images.value![index] = updatedImage;
       }
@@ -99,9 +99,9 @@ class LocalImagesController extends GetxController {
     _images.refresh();
   }
 
-  // 이미지 삭제 - id를 기반으로 이미지 찾아 삭제
   void removeImage(LocalImage targetImage) {
-    _images.value!.removeWhere((image) => image.assetPath == targetImage.assetPath);
+    _images.value!
+        .removeWhere((image) => image.assetPath == targetImage.assetPath);
     _images.refresh();
     dbHelper.deleteImage(targetImage);
   }

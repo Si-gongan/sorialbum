@@ -34,11 +34,13 @@ class ImageService {
   }
 
   Future<void> saveImagesAndMetadata(List<XFile> pickedFiles) async {
-    final List<File> imageFiles = await Future.wait(pickedFiles.map((file) async {
+    Stopwatch stopwatch = Stopwatch()..start();
+    final List<File> imageFiles =
+        await Future.wait(pickedFiles.map((file) async {
       final File imageFile = File(file.path);
       return imageFile;
     }));
-    
+
     List<LocalImage> localImages = [];
 
     // first stage: get local path and original date
@@ -46,26 +48,46 @@ class ImageService {
     final localImageFilePaths = await saveImages(imageFiles);
     final dateTimeOriginals = await getDateTimeOriginals(imageFiles);
 
-    for (int i=0; i<imageFiles.length; i++) {
+    for (int i = 0; i < imageFiles.length; i++) {
       // LocalImage 객체를 생성
       final localImage = LocalImage(localImageFilePaths[i]['savedPath']!)
         ..thumbAssetPath = localImageFilePaths[i]['thumbSavedPath']
-        ..createdAt = dateTimeOriginals[i]?.localTime ?? DateTime.now().localTime;
+        ..createdAt =
+            dateTimeOriginals[i]?.localTime ?? DateTime.now().localTime;
 
       // 생성된 LocalImage 객체를 로컬 리스트에 추가
       localImages.add(localImage);
     }
 
+    stopwatch.stop();
+    print(stopwatch.elapsed);
+
+    // UI update
     controller.addImages(localImages);
-   
-    // second stage: save caption / embedding / etc.. 
 
-    List<String> captions = await _apiService.fetchCaptions(imageFiles);
-    List<List<double>> embeddings = await _apiService.fetchImageEmbeddings(imageFiles);
+    // second stage: get cloud urls
+    List<String> imageUrls = await _apiService.fetchImageUrls(imageFiles);
 
-    for (int i=0; i<localImages.length; i++){
-      localImages[i].caption = captions[i];
+    // third stage: get tags, embeddings
+    List<List<String>> tags =
+        await _apiService.fetchAzureTags(imageUrls, maxNumber: 5, lang: "ko");
+
+    List<List<double>> embeddings =
+        await _apiService.fetchImageEmbeddings(imageUrls);
+
+    for (int i = 0; i < localImages.length; i++) {
+      localImages[i].imageUrl = imageUrls[i];
+      localImages[i].generalTags = tags[i];
       localImages[i].vector = embeddings[i];
+    }
+
+    controller.updateImages(localImages);
+
+    // 4th stage: get captions
+    List<String> captions = await _apiService.fetchGPTCaptions(imageFiles);
+
+    for (int i = 0; i < localImages.length; i++) {
+      localImages[i].caption = captions[i];
     }
 
     await dbHelper.insertImages(localImages);
@@ -86,8 +108,7 @@ Future<Map<String, String>> saveImage(File imageFile) async {
   await imageFile.copy(savedPath);
 
   // 썸네일 저장
-  final thumbSavedPath =
-    await createThumbnail(imageFile.path, directory.path);
+  final thumbSavedPath = await createThumbnail(imageFile.path, directory.path);
 
   return {'savedPath': savedPath, 'thumbSavedPath': thumbSavedPath};
 }
@@ -106,7 +127,7 @@ Future<String> createThumbnail(String filePath, String saveDir) async {
 
   // JPEG 형식으로 섬네일 이미지 저장
   File(thumbSavedPath).writeAsBytesSync(
-    img.encodeJpg(thumbnail, quality: 90)); // 품질은 필요에 따라 조절 가능
+      img.encodeJpg(thumbnail, quality: 90)); // 품질은 필요에 따라 조절 가능
 
   return thumbSavedPath;
 }
