@@ -321,7 +321,7 @@ class _ImageDetailState extends State<ImageDetail> {
                 child: const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(CupertinoIcons.sparkles,
+                    Icon(CupertinoIcons.text_cursor,
                         size: 16, color: Colors.white),
                     SizedBox(width: 6),
                     Text('글자 인식하기', style: TextStyle(color: Colors.white)),
