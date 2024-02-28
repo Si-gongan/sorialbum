@@ -1,6 +1,5 @@
 import 'package:get/get.dart';
 import '../models/image.dart';
-import '../controllers/local_images_controller.dart';
 import '../helpers/db_helper.dart';
 import '../helpers/storage_helper.dart';
 import '../helpers/api_service.dart';
@@ -23,8 +22,6 @@ class SearchImagesController extends GetxController {
 
   final dbHelper = DatabaseHelper();
   final searchHistoryManager = SearchHistoryManager();
-  final apiService = ApiService();
-  final localImagesController = Get.find<LocalImagesController>();
 
   @override
   void onInit() {
@@ -50,7 +47,7 @@ class SearchImagesController extends GetxController {
 
       List<LocalImage> images = await dbHelper.getAllImages();
       // 유사도 기반 정렬
-      List<double> queryVec = await apiService.fetchTextEmbedding(query);
+      List<double> queryVec = await ApiService.fetchTextEmbedding(query);
       final similarityScores = images.map((image) {
         final imageVec = image.vector;
         return {
@@ -112,13 +109,22 @@ class SearchImagesController extends GetxController {
       _images.value![index] = updatedImage;
       _images.refresh();
     }
-    localImagesController.updateImage(updatedImage);
+  }
+
+  void updateImages(List<LocalImage> updatedImages) {
+    for (LocalImage updatedImage in updatedImages) {
+      int index = _images.value!
+          .indexWhere((image) => image.assetPath == updatedImage.assetPath);
+      if (index != -1) {
+        _images.value![index] = updatedImage;
+      }
+    }
+    _images.refresh();
   }
 
   void removeImage(LocalImage targetImage) {
     _images.value!
         .removeWhere((image) => image.assetPath == targetImage.assetPath);
     _images.refresh();
-    localImagesController.removeImage(targetImage);
   }
 }

@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/local_images_controller.dart';
 import '../controllers/search_image_controller.dart';
+import '../models/image.dart';
+import '../helpers/image_service.dart';
+import '../helpers/storage_helper.dart';
 import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
@@ -104,8 +107,9 @@ class _ImageDetailState extends State<ImageDetail> {
                                             isDestructiveAction: true,
                                             child: const Text('삭제'),
                                             onPressed: () {
-                                              controller.removeImage(controller
-                                                  .images![controller.index]);
+                                              ImageService.removeImage(
+                                                  controller.images![
+                                                      controller.index]);
                                               Navigator.of(context).pop();
                                             },
                                           ),
@@ -146,10 +150,10 @@ class _ImageDetailState extends State<ImageDetail> {
                 },
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 14),
             // caption
             Container(
-                margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 20),
+                margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
                 child: controller.images![controller.index].caption != null
                     ? Text(controller.images![controller.index].caption)
                     : Row(children: [
@@ -163,10 +167,11 @@ class _ImageDetailState extends State<ImageDetail> {
                         ),
                         const Text('캡션을 생성중이에요...')
                       ])),
+            const SizedBox(height: 8),
             // genearl tags
             Container(
               margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
-              child: Wrap(spacing: 8, runSpacing: 6, children: [
+              child: Wrap(spacing: 8, runSpacing: 8, children: [
                 ...List.generate(
                     controller.images![controller.index].generalTags?.length ??
                         0,
@@ -181,12 +186,12 @@ class _ImageDetailState extends State<ImageDetail> {
                         type: 'alert'))
               ]),
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: 8),
             // user memo
-            Container(
-                margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
-                child:
-                    Text(controller.images![controller.index].userMemo ?? '')),
+            // Container(
+            //     margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
+            //     child:
+            //         Text(controller.images![controller.index].userMemo ?? '')),
             // annotations
             Container(
               margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
@@ -207,14 +212,168 @@ class _ImageDetailState extends State<ImageDetail> {
                 },
               ),
             ),
-
-            Container(
-                margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
-                child: Text(_selectedSegment == Annotation.description
-                    ? controller.images![controller.index].description ?? ''
-                    : controller.images![controller.index].ocr ?? '')),
+            Expanded(
+              child: Container(
+                margin:
+                    const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                child: SingleChildScrollView(
+                  child: _annotation(
+                      controller.images![controller.index], _selectedSegment),
+                ),
+              ),
+            ),
           ],
         )));
+  }
+
+  Widget _annotation(LocalImage image, Annotation type) {
+    if (type == Annotation.description) {
+      if (image.description == null) {
+        return Center(
+          child: GestureDetector(
+            child: Container(
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                    color: Color.fromARGB(255, 113, 113, 113),
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                          color: Colors.black.withOpacity(0.25))
+                    ]),
+                width: 140,
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                margin: const EdgeInsets.only(top: 10),
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(CupertinoIcons.sparkles,
+                        size: 16, color: Colors.white),
+                    SizedBox(width: 6),
+                    Text('설명 생성하기', style: TextStyle(color: Colors.white)),
+                  ],
+                )),
+            onTap: () async {
+              showCupertinoDialog(
+                  context: context,
+                  builder: (context) => CupertinoAlertDialog(
+                        title: const Text('알림'),
+                        content: Text(TicketManager.currentTickets != 0
+                            ? '이용권을 소비하여 설명을 생성합니다.\n(남은 일일 이용권: ${TicketManager.currentTickets}개)'
+                            : '이용권을 모두 소진하였습니다.\n내일이 되면 이용권 10개를 받을 수 있어요.'),
+                        actions: <Widget>[
+                          // 다이얼로그 닫기 버튼
+                          CupertinoDialogAction(
+                            isDestructiveAction: true,
+                            child: const Text('취소'),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                          // 다른 액션을 수행하는 버튼
+                          CupertinoDialogAction(
+                            child: const Text('생성'),
+                            onPressed: () async {
+                              Navigator.of(context).pop();
+                              TicketManager.useTicket();
+                              await ImageService.getDescription(image);
+                            },
+                          ),
+                        ],
+                      ));
+            },
+          ),
+        );
+      } else if (image.description == "설명을 생성중이에요...") {
+        return Row(children: [
+          Container(
+            margin: const EdgeInsets.only(right: 8),
+            height: 16,
+            width: 16,
+            child: const CupertinoActivityIndicator(
+              radius: 8,
+            ),
+          ),
+          const Text("설명을 생성중이에요...")
+        ]);
+      } else {
+        return Text(image.description!);
+      }
+    } else {
+      if (image.ocr == null) {
+        return Center(
+          child: GestureDetector(
+            child: Container(
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                    color: const Color.fromARGB(255, 113, 113, 113),
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                          color: Colors.black.withOpacity(0.25))
+                    ]),
+                width: 140,
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                margin: const EdgeInsets.only(top: 10),
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(CupertinoIcons.sparkles,
+                        size: 16, color: Colors.white),
+                    SizedBox(width: 6),
+                    Text('글자 인식하기', style: TextStyle(color: Colors.white)),
+                  ],
+                )),
+            onTap: () async {
+              showCupertinoDialog(
+                  context: context,
+                  builder: (context) => CupertinoAlertDialog(
+                        title: const Text('알림'),
+                        content: Text(TicketManager.currentTickets != 0
+                            ? '이용권을 소비하여 설명을 생성합니다.\n(남은 일일 이용권: ${TicketManager.currentTickets}개)'
+                            : '이용권을 모두 소진하였습니다.\n내일이 되면 이용권 10개를 받을 수 있어요.'),
+                        actions: <Widget>[
+                          // 다이얼로그 닫기 버튼
+                          CupertinoDialogAction(
+                            isDestructiveAction: true,
+                            child: const Text('취소'),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                          // 다른 액션을 수행하는 버튼
+                          CupertinoDialogAction(
+                            child: const Text('생성'),
+                            onPressed: () async {
+                              Navigator.of(context).pop();
+                              TicketManager.useTicket();
+                              await ImageService.getOCR(image);
+                            },
+                          ),
+                        ],
+                      ));
+            },
+          ),
+        );
+      } else if (image.ocr == "글자를 인식중이에요...") {
+        return Row(children: [
+          Container(
+            margin: const EdgeInsets.only(right: 8),
+            height: 16,
+            width: 16,
+            child: const CupertinoActivityIndicator(
+              radius: 8,
+            ),
+          ),
+          const Text("글자를 인식중이에요...")
+        ]);
+      } else {
+        return Text(image.ocr! != "" ? image.ocr! : "인식된 글자가 없습니다.");
+      }
+    }
   }
 
   Widget _tag(String text, {String? type}) {

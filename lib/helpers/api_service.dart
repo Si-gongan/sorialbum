@@ -6,7 +6,37 @@ import 'dart:io';
 const String aiServerHost = 'http://54.87.223.235:8000';
 
 class ApiService {
-  Future<List<double>> fetchTextEmbedding(String text) async {
+  static Future<String> fetchImageDescription(File imageFile) async {
+    try {
+      final bytes = await imageFile.readAsBytes();
+      final base64Image = base64Encode(bytes);
+      final response =
+          await http.post(Uri.parse('$aiServerHost/image-description'),
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: jsonEncode({'url': base64Image}));
+      if (response.statusCode == 200) {
+        final String decodedResponse = utf8.decode(response.bodyBytes);
+        final responseData = jsonDecode(decodedResponse);
+
+        if (responseData is Map<String, dynamic> &&
+            responseData.containsKey('description')) {
+          String description = responseData['description'] as String;
+          return description;
+        } else {
+          throw Exception('Invalid response format');
+        }
+      } else {
+        throw Exception('Failed to load image description');
+      }
+    } catch (e) {
+      print(e);
+      return "";
+    }
+  }
+
+  static Future<List<double>> fetchTextEmbedding(String text) async {
     try {
       final response =
           await http.post(Uri.parse('$aiServerHost/text-embedding'),
@@ -34,7 +64,48 @@ class ApiService {
     }
   }
 
-  Future<List<String>> fetchGPTCaptions(List<File> imageFiles) async {
+  static Future<List<String>> fetchImageOCRs(List<File> imageFiles) async {
+    try {
+      // 모든 이미지 파일을 Base64 인코딩하고 리스트로 묶기
+      final base64Images = await Future.wait(imageFiles.map((file) async {
+        final bytes = await file.readAsBytes();
+        final base64Image = base64Encode(bytes);
+        return base64Image;
+      }));
+
+      // HTTP POST 요청으로 모든 이미지 데이터를 한 번에 전송
+      final response = await http.post(
+        Uri.parse('$aiServerHost/image-ocr'),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode({
+          'strings': base64Images,
+        }),
+      );
+
+      // 응답으로 받은 모든 이미지 캡션을 파싱하여 반환
+      if (response.statusCode == 200) {
+        final String decodedResponse = utf8.decode(response.bodyBytes);
+        final responseData = jsonDecode(decodedResponse);
+
+        if (responseData is Map<String, dynamic> &&
+            responseData.containsKey('texts')) {
+          List<String> captions = List<String>.from(responseData['texts']);
+          return captions;
+        } else {
+          throw Exception('Invalid response format');
+        }
+      } else {
+        throw Exception('Failed to load image OCRs');
+      }
+    } catch (e) {
+      print(e);
+      return []; // 오류 발생 시 빈 리스트 반환
+    }
+  }
+
+  static Future<List<String>> fetchGPTCaptions(List<File> imageFiles) async {
     try {
       // 모든 이미지 파일을 Base64 인코딩하고 리스트로 묶기
       final base64Images = await Future.wait(imageFiles.map((file) async {
@@ -75,7 +146,7 @@ class ApiService {
     }
   }
 
-  Future<List<List<String>>> fetchAzureTags(List<String> imageUrls,
+  static Future<List<List<String>>> fetchAzureTags(List<String> imageUrls,
       {int maxNumber = 7, bool caption = false, String lang = "en"}) async {
     try {
       // HTTP POST 요청으로 모든 이미지 데이터를 한 번에 전송
@@ -126,7 +197,7 @@ class ApiService {
     }
   }
 
-  Future<List<List<double>>> fetchImageEmbeddings(
+  static Future<List<List<double>>> fetchImageEmbeddings(
       List<String> imageUrls) async {
     try {
       // HTTP POST 요청으로 모든 이미지 데이터를 한 번에 전송
@@ -168,7 +239,7 @@ class ApiService {
     }
   }
 
-  Future<List<String>> fetchImageUrls(List<File> imageFiles) async {
+  static Future<List<String>> fetchImageUrls(List<File> imageFiles) async {
     try {
       // 모든 이미지 파일을 Base64 인코딩하고 리스트로 묶기
       final base64Images = await Future.wait(imageFiles.map((file) async {

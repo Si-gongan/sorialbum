@@ -5,12 +5,12 @@ class _Image {
   int? countId;
 
   String? caption;
-  String? description = 'sample description';
-  String? ocr = 'sample ocr text';
+  String? description;
+  String? ocr;
   String? userMemo = 'sample user memo';
 
   List<String>? generalTags;
-  List<String>? alertTags = ['atag1', 'atag2'];
+  List<String>? alertTags;
 
   List<double>? vector;
 

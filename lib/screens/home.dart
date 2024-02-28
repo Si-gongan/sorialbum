@@ -10,7 +10,7 @@ import 'dart:ui';
 class Home extends GetView<LocalImagesController> {
   Home({super.key});
 
-  final imageService = ImageService();
+  // final imageService = ImageService();
   final ScrollController _scrollController = ScrollController();
 
   @override
@@ -27,9 +27,9 @@ class Home extends GetView<LocalImagesController> {
                 size: 30,
               ),
               onPressed: () async {
-                final image = await imageService.takePicture();
+                final image = await ImageService.takePicture();
                 if (image != null) {
-                  await imageService.saveImagesAndMetadata([image]);
+                  await ImageService.saveImagesAndMetadata([image]);
                 } else {
                   // when canceled...
                 }
@@ -39,9 +39,9 @@ class Home extends GetView<LocalImagesController> {
               icon: const Icon(CupertinoIcons.photo,
                   color: Colors.black54, size: 30),
               onPressed: () async {
-                final images = await imageService.pickImagesFromGallery();
+                final images = await ImageService.pickImagesFromGallery();
                 if (images!.isNotEmpty) {
-                  await imageService.saveImagesAndMetadata(images);
+                  await ImageService.saveImagesAndMetadata(images);
                 } else {
                   // when canceled...
                 }

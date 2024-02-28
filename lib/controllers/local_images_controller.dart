@@ -103,7 +103,6 @@ class LocalImagesController extends GetxController {
     _images.value!
         .removeWhere((image) => image.assetPath == targetImage.assetPath);
     _images.refresh();
-    dbHelper.deleteImage(targetImage);
   }
 
   Map<String, Map<String, List<LocalImage>>> groupImagesByMonthAndDate(

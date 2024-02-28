@@ -67,6 +67,26 @@ class DatabaseHelper {
         where: 'assetPath = ?', whereArgs: [image.assetPath]);
   }
 
+  Future<void> updateImageByMap(Map<String, dynamic> map) async {
+    final db = await database;
+    await db.update('images', map,
+        where: 'assetPath = ?', whereArgs: [map['assetPath']]);
+  }
+
+  Future<void> updateImagesByMaps(List<Map<String, dynamic>> maps) async {
+    final db = await database;
+    await db.transaction((txn) async {
+      for (var map in maps) {
+        await txn.update(
+          'images',
+          map,
+          where: 'assetPath = ?',
+          whereArgs: [map['assetPath']],
+        );
+      }
+    });
+  }
+
   Future<void> deleteImage(LocalImage image) async {
     final db = await database;
     await db
