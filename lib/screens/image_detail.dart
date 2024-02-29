@@ -234,7 +234,7 @@ class _ImageDetailState extends State<ImageDetail> {
             child: Container(
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                    color: Color.fromARGB(255, 113, 113, 113),
+                    color: const Color.fromARGB(255, 113, 113, 113),
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
@@ -262,25 +262,35 @@ class _ImageDetailState extends State<ImageDetail> {
                         content: Text(TicketManager.currentTickets != 0
                             ? '이용권을 소비하여 설명을 생성합니다.\n(남은 일일 이용권: ${TicketManager.currentTickets}개)'
                             : '이용권을 모두 소진하였습니다.\n내일이 되면 이용권 10개를 받을 수 있어요.'),
-                        actions: <Widget>[
-                          // 다이얼로그 닫기 버튼
-                          CupertinoDialogAction(
-                            isDestructiveAction: true,
-                            child: const Text('취소'),
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                          ),
-                          // 다른 액션을 수행하는 버튼
-                          CupertinoDialogAction(
-                            child: const Text('생성'),
-                            onPressed: () async {
-                              Navigator.of(context).pop();
-                              TicketManager.useTicket();
-                              await ImageService.getDescription(image);
-                            },
-                          ),
-                        ],
+                        actions: TicketManager.currentTickets != 0
+                            ? <Widget>[
+                                // 다이얼로그 닫기 버튼
+                                CupertinoDialogAction(
+                                  isDestructiveAction: true,
+                                  child: const Text('취소'),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                                // 다른 액션을 수행하는 버튼
+                                CupertinoDialogAction(
+                                  child: const Text('생성'),
+                                  onPressed: () async {
+                                    Navigator.of(context).pop();
+                                    TicketManager.useTicket();
+                                    await ImageService.getOCR(image);
+                                  },
+                                ),
+                              ]
+                            : <Widget>[
+                                // 다이얼로그 닫기 버튼
+                                CupertinoDialogAction(
+                                  child: const Text('확인'),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                              ],
                       ));
             },
           ),
@@ -333,27 +343,37 @@ class _ImageDetailState extends State<ImageDetail> {
                   builder: (context) => CupertinoAlertDialog(
                         title: const Text('알림'),
                         content: Text(TicketManager.currentTickets != 0
-                            ? '이용권을 소비하여 설명을 생성합니다.\n(남은 일일 이용권: ${TicketManager.currentTickets}개)'
+                            ? '이용권을 소비하여 글자를 인식합니다.\n(남은 일일 이용권: ${TicketManager.currentTickets}개)'
                             : '이용권을 모두 소진하였습니다.\n내일이 되면 이용권 10개를 받을 수 있어요.'),
-                        actions: <Widget>[
-                          // 다이얼로그 닫기 버튼
-                          CupertinoDialogAction(
-                            isDestructiveAction: true,
-                            child: const Text('취소'),
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                          ),
-                          // 다른 액션을 수행하는 버튼
-                          CupertinoDialogAction(
-                            child: const Text('생성'),
-                            onPressed: () async {
-                              Navigator.of(context).pop();
-                              TicketManager.useTicket();
-                              await ImageService.getOCR(image);
-                            },
-                          ),
-                        ],
+                        actions: TicketManager.currentTickets != 0
+                            ? <Widget>[
+                                // 다이얼로그 닫기 버튼
+                                CupertinoDialogAction(
+                                  isDestructiveAction: true,
+                                  child: const Text('취소'),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                                // 다른 액션을 수행하는 버튼
+                                CupertinoDialogAction(
+                                  child: const Text('생성'),
+                                  onPressed: () async {
+                                    Navigator.of(context).pop();
+                                    TicketManager.useTicket();
+                                    await ImageService.getOCR(image);
+                                  },
+                                ),
+                              ]
+                            : <Widget>[
+                                // 다이얼로그 닫기 버튼
+                                CupertinoDialogAction(
+                                  child: const Text('확인'),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                              ],
                       ));
             },
           ),
@@ -385,7 +405,7 @@ class _ImageDetailState extends State<ImageDetail> {
                 : Colors.black.withOpacity(0.6),
             borderRadius: BorderRadius.circular(5)),
         child: type == 'general'
-            ? Text(text, style: TextStyle(color: Colors.black))
+            ? Text(text, style: const TextStyle(color: Colors.black))
             : Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -395,7 +415,7 @@ class _ImageDetailState extends State<ImageDetail> {
                     size: 14,
                   ),
                   const SizedBox(width: 3),
-                  Text(text, style: TextStyle(color: Colors.white)),
+                  Text(text, style: const TextStyle(color: Colors.white)),
                 ],
               ));
   }

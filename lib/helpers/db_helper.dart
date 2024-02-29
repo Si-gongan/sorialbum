@@ -102,18 +102,13 @@ class DatabaseHelper {
     });
   }
 
-  Future<List<LocalImage>> searchImages(String keyword) async {
+  Future<List<LocalImage>> searchImagesByKeyword(String keyword) async {
     final db = await database;
-    // 여기서는 간단히 키워드가 포함된 이미지를 찾는 예제 쿼리를 제공합니다.
-    // 실제 구현에서는 워드 임베딩 벡터 값을 고려하여 유사도를 계산하는 로직이 필요합니다.
-    final List<Map<String, dynamic>> maps = await db.query(
-      'images',
-      where: 'generalTags LIKE ? OR alertTags LIKE ? OR caption LIKE ?',
-      whereArgs: ['%$keyword%', '%$keyword%', '%$keyword%'],
-    );
-
-    return List.generate(maps.length, (i) {
-      return LocalImage.fromMap(maps[i]);
-    });
+    final List<Map<String, dynamic>> maps = await db.query('images',
+        where:
+            'generalTags LIKE ? OR caption LIKE ? OR description LIKE ? OR ocr LIKE ?',
+        whereArgs: ['%$keyword%', '%$keyword%', '%$keyword%', '%$keyword%'],
+        orderBy: 'createdAt DESC');
+    return maps.map((map) => LocalImage.fromMap(map)).toList();
   }
 }

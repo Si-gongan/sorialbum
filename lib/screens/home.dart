@@ -169,7 +169,7 @@ class Home extends GetView<LocalImagesController> {
             width: 40, // 흐림 효과를 적용할 컨테이너의 너비
             height: 24, // 흐림 효과를 적용할 컨테이너의 높이
             decoration: BoxDecoration(
-                color: Colors.grey.shade200.withOpacity(0.6), // 반투명 배경 색상
+                color: Colors.grey.shade200.withOpacity(0.75), // 반투명 배경 색상
                 borderRadius: BorderRadius.circular(20)), // 경계선 둥글게 처리),
             child: Center(
               child: Text(

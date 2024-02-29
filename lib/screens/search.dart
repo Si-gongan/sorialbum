@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import '../controllers/search_image_controller.dart';
 import 'dart:io';
@@ -102,40 +101,60 @@ class Search extends GetView<SearchImagesController> {
                           child: Container(
                               margin: const EdgeInsets.symmetric(
                                   vertical: 3, horizontal: 20),
-                              child:
-                                  Text(query, style: const TextStyle(fontSize: 14))),
+                              child: Text(query,
+                                  style: const TextStyle(fontSize: 14))),
                         );
                       }),
                 )
               ],
             );
           } else {
-            if (controller.images == null || controller.images!.isEmpty) {
-              return const Center(child: Text('검색 결과가 없습니다'));
-            } else {
-              return GridView.builder(
-                physics: const BouncingScrollPhysics(),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 4,
-                  crossAxisSpacing: 2,
-                  mainAxisSpacing: 2,
+            return Column(children: [
+              Container(
+                margin: const EdgeInsets.fromLTRB(0, 10, 0, 15),
+                child: CupertinoSlidingSegmentedControl(
+                  groupValue: controller.type,
+                  onValueChanged: ((String? value) {
+                    if (value != null) {
+                      controller.setType(value);
+                    }
+                  }),
+                  children: const <String, Widget>{
+                    'filtered': Text('키워드 포함'),
+                    'sorted': Text('유사도 순'),
+                  },
                 ),
-                itemCount: controller.images!.length,
-                itemBuilder: (context, index) {
-                  final image = controller.images![index];
-                  return GestureDetector(
-                      onTap: () {
-                        controller.setCurrentIndex(index);
-                        Get.toNamed('/image_detail', arguments: 'search');
-                      },
-                      child: Hero(
-                          tag: 'search_image_$index',
-                          child: Image.file(
-                              File(image.thumbAssetPath ?? image.assetPath),
-                              fit: BoxFit.cover)));
-                },
-              );
-            }
+              ),
+              controller.images == null || controller.images!.isEmpty
+                  ? const Center(child: Text('검색 결과가 없습니다'))
+                  : Expanded(
+                      child: GridView.builder(
+                        physics: const BouncingScrollPhysics(),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 4,
+                          crossAxisSpacing: 2,
+                          mainAxisSpacing: 2,
+                        ),
+                        itemCount: controller.images!.length,
+                        itemBuilder: (context, index) {
+                          final image = controller.images![index];
+                          return GestureDetector(
+                              onTap: () {
+                                controller.setCurrentIndex(index);
+                                Get.toNamed('/image_detail',
+                                    arguments: 'search');
+                              },
+                              child: Hero(
+                                  tag: 'search_image_$index',
+                                  child: Image.file(
+                                      File(image.thumbAssetPath ??
+                                          image.assetPath),
+                                      fit: BoxFit.cover)));
+                        },
+                      ),
+                    )
+            ]);
           }
         }));
   }
