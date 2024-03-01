@@ -93,7 +93,9 @@ class ImageService {
             })
         .toList());
     localImageController.updateImages(localImages);
-    searchImageController.updateImages(localImages);
+    if (searchImageController.initialized) {
+      searchImageController.updateImages(localImages);
+    }
 
     // 4th stage: get captions
     List<String> captions = await ApiService.fetchGPTCaptions(imageFiles);
@@ -109,7 +111,9 @@ class ImageService {
             })
         .toList());
     localImageController.updateImages(localImages);
-    searchImageController.updateImages(localImages);
+    if (searchImageController.initialized) {
+      searchImageController.updateImages(localImages);
+    }
     Get.snackbar(
       '이미지 캡션 생성 완료', // 제목
       '총 ${localImages.length}개의 이미지 캡션 생성이 완료되었습니다.', // 메시지
@@ -126,7 +130,9 @@ class ImageService {
   static Future<void> getDescription(LocalImage image) async {
     image.description = '설명을 생성중이에요...';
     localImageController.updateImage(image);
-    searchImageController.updateImage(image);
+    if (searchImageController.initialized) {
+      searchImageController.updateImage(image);
+    }
 
     File imageFile = File(image.assetPath);
     final description = await ApiService.fetchImageDescription(imageFile);
@@ -136,7 +142,9 @@ class ImageService {
       for (var key in ['assetPath', 'description']) key: image.toMap()[key]
     });
     localImageController.updateImage(image);
-    searchImageController.updateImage(image);
+    if (searchImageController.initialized) {
+      searchImageController.updateImage(image);
+    }
     Get.snackbar(
       '이미지 설명 생성 완료', // 제목
       '이미지의 설명 생성이 완료되었습니다.', // 메시지
@@ -153,7 +161,9 @@ class ImageService {
   static Future<void> getOCR(LocalImage image) async {
     image.ocr = '글자를 인식중이에요...';
     localImageController.updateImage(image);
-    searchImageController.updateImage(image);
+    if (searchImageController.initialized) {
+      searchImageController.updateImage(image);
+    }
 
     File imageFile = File(image.assetPath);
     final texts = await ApiService.fetchImageOCRs([imageFile]);
@@ -163,7 +173,9 @@ class ImageService {
       for (var key in ['assetPath', 'ocr']) key: image.toMap()[key]
     });
     localImageController.updateImage(image);
-    searchImageController.updateImage(image);
+    if (searchImageController.initialized) {
+      searchImageController.updateImage(image);
+    }
     Get.snackbar(
       '이미지 글자 인식 완료', // 제목
       '이미지의 글자 인식이 완료되었습니다.', // 메시지

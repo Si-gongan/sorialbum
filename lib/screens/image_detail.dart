@@ -278,7 +278,7 @@ class _ImageDetailState extends State<ImageDetail> {
                                   onPressed: () async {
                                     Navigator.of(context).pop();
                                     TicketManager.useTicket();
-                                    await ImageService.getOCR(image);
+                                    await ImageService.getDescription(image);
                                   },
                                 ),
                               ]
