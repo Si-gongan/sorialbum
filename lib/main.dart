@@ -18,6 +18,7 @@ void main() async {
   tz.initializeTimeZones();
 
   runApp(GetMaterialApp(
+    showSemanticsDebugger: false,
     unknownRoute:
         GetPage(name: '/notfound', page: () => const Text('Unknown Page')),
     initialRoute: '/',
@@ -29,7 +30,7 @@ void main() async {
           binding: SearchImagesBinding()),
       GetPage(
           name: '/image_detail',
-          page: () => ImageDetail(),
+          page: () => const ImageDetail(),
           binding: AllImagesBinding()),
       GetPage(
           name: '/albums',

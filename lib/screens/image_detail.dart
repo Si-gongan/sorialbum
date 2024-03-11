@@ -169,29 +169,30 @@ class _ImageDetailState extends State<ImageDetail> {
                       ])),
             const SizedBox(height: 8),
             // genearl tags
-            Container(
-              margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
-              child: Wrap(spacing: 8, runSpacing: 8, children: [
-                ...List.generate(
-                    controller.images![controller.index].generalTags?.length ??
-                        0,
-                    (index) => _tag(
-                        controller
-                            .images![controller.index].generalTags![index],
-                        type: 'general')),
-                ...List.generate(
-                    controller.images![controller.index].alertTags?.length ?? 0,
-                    (index) => _tag(
-                        controller.images![controller.index].alertTags![index],
-                        type: 'alert'))
-              ]),
-            ),
-            const SizedBox(height: 8),
+            // Container(
+            //   margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
+            //   child: Wrap(spacing: 8, runSpacing: 8, children: [
+            //     ...List.generate(
+            //         controller.images![controller.index].generalTags?.length ??
+            //             0,
+            //         (index) => _tag(
+            //             controller
+            //                 .images![controller.index].generalTags![index],
+            //             type: 'general')),
+            //     ...List.generate(
+            //         controller.images![controller.index].alertTags?.length ?? 0,
+            //         (index) => _tag(
+            //             controller.images![controller.index].alertTags![index],
+            //             type: 'alert'))
+            //   ]),
+            // ),
+            // const SizedBox(height: 8),
             // user memo
             // Container(
             //     margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
             //     child:
             //         Text(controller.images![controller.index].userMemo ?? '')),
+
             // annotations
             Container(
               margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
@@ -338,43 +339,7 @@ class _ImageDetailState extends State<ImageDetail> {
                   ],
                 )),
             onTap: () async {
-              showCupertinoDialog(
-                  context: context,
-                  builder: (context) => CupertinoAlertDialog(
-                        title: const Text('알림'),
-                        content: Text(TicketManager.currentTickets != 0
-                            ? '이용권을 소비하여 글자를 인식합니다.\n(남은 일일 이용권: ${TicketManager.currentTickets}개)'
-                            : '이용권을 모두 소진하였습니다.\n내일이 되면 이용권 10개를 받을 수 있어요.'),
-                        actions: TicketManager.currentTickets != 0
-                            ? <Widget>[
-                                // 다이얼로그 닫기 버튼
-                                CupertinoDialogAction(
-                                  isDestructiveAction: true,
-                                  child: const Text('취소'),
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                ),
-                                // 다른 액션을 수행하는 버튼
-                                CupertinoDialogAction(
-                                  child: const Text('생성'),
-                                  onPressed: () async {
-                                    Navigator.of(context).pop();
-                                    TicketManager.useTicket();
-                                    await ImageService.getOCR(image);
-                                  },
-                                ),
-                              ]
-                            : <Widget>[
-                                // 다이얼로그 닫기 버튼
-                                CupertinoDialogAction(
-                                  child: const Text('확인'),
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                ),
-                              ],
-                      ));
+              await ImageService.getOCR(image);
             },
           ),
         );
