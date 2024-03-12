@@ -17,13 +17,12 @@ import 'bindings/bindings.dart';
 void main() async {
   await GetStorage.init();
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   tz.initializeTimeZones();
 
   runApp(GetMaterialApp(
+    debugShowCheckedModeBanner: false,
     showSemanticsDebugger: false,
     unknownRoute:
         GetPage(name: '/notfound', page: () => const Text('Unknown Page')),
