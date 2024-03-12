@@ -10,7 +10,6 @@ import 'dart:ui';
 class Home extends GetView<LocalImagesController> {
   Home({super.key});
 
-  // final imageService = ImageService();
   final ScrollController _scrollController = ScrollController();
 
   @override
@@ -58,9 +57,8 @@ class Home extends GetView<LocalImagesController> {
           backgroundColor: Colors.white,
         ),
         body: Obx(() {
-          // Obx를 사용하여 컨트롤러의 상태 변화를 감지합니다.
           if (controller.images == null || controller.images!.isEmpty) {
-            return const Center(child: Text('갤러리에 사진을 추가해보세요!'));
+            return const Center(child: Text('소리앨범에 사진을 추가해보세요!'));
           } else {
             var groupedImages =
                 controller.groupImagesByMonthAndDate(controller.images!);

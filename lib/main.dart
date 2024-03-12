@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:timezone/data/latest.dart' as tz;
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 import 'screens/home.dart';
 import 'screens/search.dart';
@@ -14,6 +16,10 @@ import 'bindings/bindings.dart';
 
 void main() async {
   await GetStorage.init();
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform
+  );
 
   tz.initializeTimeZones();
 

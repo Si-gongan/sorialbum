@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "48400422065",
+    "project_id": "sorialbum",
+    "storage_bucket": "sorialbum.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:48400422065:android:a152023346a92e64863e90",
+        "android_client_info": {
+          "package_name": "com.sigongan.broady_lite"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDAfTduUeT0wYqqrEWXEStm4vP7NI0mJ7w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

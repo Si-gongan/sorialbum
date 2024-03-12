@@ -12,14 +12,26 @@ import 'package:exif/exif.dart';
 import 'package:image/image.dart' as img;
 import 'package:broady_lite/helpers/utils.dart';
 import 'api_service.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 final ImagePicker _picker = ImagePicker();
-
 final dbHelper = DatabaseHelper();
-final localImageController = Get.find<LocalImagesController>();
-final searchImageController = Get.find<SearchImagesController>();
+final storageRef = FirebaseStorage.instance.ref();
 
 class ImageService {
+  static final LocalImagesController localImageController = Get.find<LocalImagesController>();
+  static final SearchImagesController searchImageController = _findOrCreateSearchImageController();
+
+  static SearchImagesController _findOrCreateSearchImageController() {
+    try {
+      // Get.find()를 시도하여 이미 등록된 인스턴스가 있는지 확인
+      return Get.find<SearchImagesController>();
+    } catch (e) {
+      // 등록된 인스턴스가 없을 경우, 새로운 인스턴스를 생성하고 주입
+      return Get.put(SearchImagesController());
+    }
+  }
+
   static Future<XFile?> pickImageFromGallery() async {
     final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
     return image;
@@ -45,7 +57,6 @@ class ImageService {
     List<LocalImage> localImages = [];
 
     // first stage: get local path and original date
-
     final localImageFilePaths = await saveImages(imageFiles);
     final dateTimeOriginals = await getDateTimeOriginals(imageFiles);
 
@@ -64,12 +75,19 @@ class ImageService {
     await dbHelper.insertImages(localImages);
     localImageController.addImages(localImages);
 
+    
+    final List<File> thumbImageFiles =
+      await Future.wait(localImageFilePaths.map((path) async {
+      final File imageFile = File(path['thumbSavedPath']!);
+      return imageFile;
+    }));
+
     // second stage: get cloud urls
-    List<String> imageUrls = await ApiService.fetchImageUrls(imageFiles);
+    List<String> imageUrls = await uploadImagesToFirebase(thumbImageFiles);
 
     // third stage: get tags, embeddings
     List<List<String>> tags =
-        await ApiService.fetchAzureTags(imageUrls, maxNumber: 5, lang: "ko");
+        await ApiService.fetchAzureTags(imageUrls, maxNumber: 5, caption: true, lang: "ko");
 
     List<List<double>> embeddings =
         await ApiService.fetchImageEmbeddings(imageUrls);
@@ -78,6 +96,8 @@ class ImageService {
       localImages[i].imageUrl = imageUrls[i];
       localImages[i].generalTags = tags[i];
       localImages[i].vector = embeddings[i];
+      // if we using azure caption
+      localImages[i].caption = tags[localImages.length][i];
     }
 
     // second UI update
@@ -87,7 +107,8 @@ class ImageService {
                 'assetPath',
                 'imageUrl',
                 'generalTags',
-                'vector'
+                'vector',
+                'caption'
               ])
                 key: e.toMap()[key]
             })
@@ -98,22 +119,23 @@ class ImageService {
     }
 
     // 4th stage: get captions
-    List<String> captions = await ApiService.fetchGPTCaptions(imageFiles);
+    // TODO: GPT-4 api error issue
+    // List<String> captions = await ApiService.fetchGPTCaptions(thumbImageFiles);
 
-    for (int i = 0; i < localImages.length; i++) {
-      localImages[i].caption = captions[i];
-    }
+    // for (int i = 0; i < localImages.length; i++) {
+    //   localImages[i].caption = 'sample caption'; // captions[i];
+    // }
 
-    // third UI update
-    await dbHelper.updateImagesByMaps(localImages
-        .map((e) => {
-              for (var key in ['assetPath', 'caption']) key: e.toMap()[key]
-            })
-        .toList());
-    localImageController.updateImages(localImages);
-    if (searchImageController.initialized) {
-      searchImageController.updateImages(localImages);
-    }
+    // // third UI update
+    // await dbHelper.updateImagesByMaps(localImages
+    //     .map((e) => {
+    //           for (var key in ['assetPath', 'caption']) key: e.toMap()[key]
+    //         })
+    //     .toList());
+    // localImageController.updateImages(localImages);
+    // if (searchImageController.initialized) {
+    //   searchImageController.updateImages(localImages);
+    // }
     Get.snackbar(
       '이미지 캡션 생성 완료', // 제목
       '총 ${localImages.length}개의 이미지 캡션 생성이 완료되었습니다.', // 메시지
@@ -196,6 +218,34 @@ class ImageService {
   }
 }
 
+Future<List<String>> uploadImagesToFirebase(List<File> images) async {
+  // FirebaseStorage 인스턴스 생성
+  final storageRef = FirebaseStorage.instance.ref();
+
+  // 업로드할 파일 각각에 대해 비동기 업로드 작업 생성
+  List<Future<TaskSnapshot>> uploadTasks = images.map((image) {
+    // 저장할 경로와 파일 이름 지정 (예: 'images/imageName.png')
+    String filePath = 'images/${DateTime.now().toLocal().millisecondsSinceEpoch}-${path.basename(image.path)}';
+    Reference fileRef = storageRef.child(filePath);
+
+    // 파일 업로드 시작
+    return fileRef.putFile(image);
+  }).toList();
+
+  // 모든 업로드 작업이 완료될 때까지 기다림
+  List<TaskSnapshot> results = await Future.wait(uploadTasks);
+
+  // 업로드 결과 처리 (예: URL 가져오기)
+  List<String> imageUrls = [];
+  for (TaskSnapshot result in results) {
+    String imageUrl = await result.ref.getDownloadURL();
+    imageUrls.add(imageUrl);
+  }
+
+  // 업로드된 이미지 URL 리스트 사용
+  return imageUrls;
+}
+
 Future<List<Map<String, String>>> saveImages(List<File> imageFiles) async {
   final results = await Future.wait(imageFiles.map(saveImage));
   return results;
@@ -223,8 +273,8 @@ Future<String> createThumbnail(String filePath, String saveDir) async {
   final imageBytes = File(filePath).readAsBytesSync();
   img.Image? image = img.decodeImage(imageBytes);
 
-  // 섬네일 이미지 생성 (예: 너비 120px에 맞춰 크기 조정)
-  img.Image thumbnail = img.copyResize(image!, width: 200);
+  // 섬네일 이미지 생성
+  img.Image thumbnail = img.copyResize(image!, width: 250);
 
   // JPEG 형식으로 섬네일 이미지 저장
   File(thumbSavedPath).writeAsBytesSync(

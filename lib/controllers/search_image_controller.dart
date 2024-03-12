@@ -154,6 +154,9 @@ class SearchImagesController extends GetxController {
         .removeWhere((image) => image.assetPath == targetImage.assetPath);
     _filteredImages.value!
         .removeWhere((image) => image.assetPath == targetImage.assetPath);
+    if (_index.value == (_type.value == 'sorted' ? _sortedImages.value!.length : _filteredImages.value!.length)) {
+      _index.value = (_type.value == 'sorted' ? _sortedImages.value!.length : _filteredImages.value!.length)-1;
+    }
     _sortedImages.refresh();
     _filteredImages.refresh();
   }

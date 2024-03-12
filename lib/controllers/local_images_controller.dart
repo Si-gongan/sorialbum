@@ -102,6 +102,9 @@ class LocalImagesController extends GetxController {
   void removeImage(LocalImage targetImage) {
     _images.value!
         .removeWhere((image) => image.assetPath == targetImage.assetPath);
+    if (_index.value == _images.value!.length) {
+      _index.value = _images.value!.length - 1;
+    }
     _images.refresh();
   }
 
