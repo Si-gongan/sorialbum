@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:get/get.dart';
 import 'package:flutter/cupertino.dart';
 import '../helpers/image_service.dart';
@@ -14,6 +15,19 @@ class Home extends GetView<LocalImagesController> {
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final GetStorage box = GetStorage();
+      final isFirstRun = box.read('isFirstRun') ?? true;
+      if (isFirstRun) {
+        box.write('isFirstRun', false);
+        showCupertinoModalPopup(
+          context: context,
+          builder: (BuildContext context) {
+            return CupertinoPopupSurface(child: _onboardingPageView());
+          },
+        );
+      }
+    });
     return Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
@@ -55,6 +69,47 @@ class Home extends GetView<LocalImagesController> {
             )
           ]),
           backgroundColor: Colors.white,
+        ),
+        floatingActionButton: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(28), // FAB의 모서리 둥글기
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.15),
+                blurRadius: 20,
+                spreadRadius: 4,
+                offset: const Offset(0, 4), // 그림자 위치 조정
+              ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(28), // FAB의 모서리 둥글기를 조정합니다.
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10), // 블러 효과 적용
+              child: Container(
+                color: Colors.white.withOpacity(0.7), // 반투명한 흰색 배경
+                width: 56, // FAB 기본 크기와 동일
+                height: 56,
+                child: Material(
+                  type: MaterialType.transparency,
+                  child: InkWell(
+                    onTap: () {
+                      showCupertinoModalPopup(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return CupertinoPopupSurface(
+                              child: _onboardingPageView());
+                        },
+                      );
+                    }, // 여기에 버튼 클릭 시 수행할 동작을 추가합니다.
+                    child: const Center(
+                      child: Icon(CupertinoIcons.question, color: Colors.black),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
         ),
         body: Obx(() {
           if (controller.images == null || controller.images!.isEmpty) {
@@ -181,6 +236,69 @@ class Home extends GetView<LocalImagesController> {
         ),
       ),
     );
+  }
+
+  Widget _onboardingPageView() {
+    return Container(
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+        color: CupertinoColors.white,
+        alignment: Alignment.topLeft,
+        height: 600,
+        width: double.infinity,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            GestureDetector(
+              child: const Text('닫기',
+                  style: TextStyle(
+                      inherit: false, color: Colors.black, fontSize: 16)),
+              onTap: () {
+                Get.back();
+              },
+            ),
+            const SizedBox(height: 14),
+            const Text('소리앨범에 오신 것을 환영합니다!',
+                style: TextStyle(
+                    inherit: false,
+                    color: Colors.black,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600)),
+            const SizedBox(height: 14),
+            const Text(
+                '1. 상단의 카메라와 갤러리 버튼을 눌러 소리앨범에 사진을 추가해보세요. 앨범에 추가된 사진은 자동으로 짧은 캡션이 생성됩니다.',
+                style: TextStyle(
+                    inherit: false, color: Colors.black, fontSize: 16)),
+            const SizedBox(height: 10),
+            const Text(
+                '2. 사진의 자세한 정보를 얻고 싶다면 AI를 통해 글자를 인식하고 자세한 설명을 생성해보세요.\n자세한 설명 생성 횟수는 하루 10회로 제한됩니다.',
+                style: TextStyle(
+                    inherit: false, color: Colors.black, fontSize: 16)),
+            const SizedBox(height: 10),
+            const Text(
+                '3. 원하는 사진을 찾고 싶다면 상단의 검색 버튼을 눌러 찾고 싶은 키워드, 혹은 사진에 대해 간단한 묘사를 입력해보세요.\n검색한 키워드 정보가 포함된 사진들과, 유사도가 높은 순으로 정렬된 사진들을 확인할 수 있습니다.',
+                style: TextStyle(
+                    inherit: false, color: Colors.black, fontSize: 16)),
+            const SizedBox(height: 10),
+            const Text(
+                '4. 이미지 상세 화면의 우측 상단 공유하기 버튼을 통해 사진과 캡션을 다른사람과 쉽게 공유해보세요.',
+                style: TextStyle(
+                    inherit: false, color: Colors.black, fontSize: 16)),
+            const SizedBox(height: 10),
+            const Text(
+                '5. 모든 사진은 외부에 업로드되지 않고 앱 데이터 내부에만 저장되며, 앱을 삭제하실 경우 저장된 데이터도 초기화되므로 이용에 유의해주시기 바랍니다.',
+                style: TextStyle(
+                    inherit: false, color: Colors.black, fontSize: 16)),
+            const SizedBox(height: 16),
+            GestureDetector(
+              child: const Text('확인',
+                  style: TextStyle(
+                      inherit: false, color: Colors.black, fontSize: 16)),
+              onTap: () {
+                Get.back();
+              },
+            ),
+          ],
+        ));
   }
 
   // TODO : 원하는 월/일 위치로 스크롤하는 함수
