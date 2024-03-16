@@ -24,7 +24,8 @@ class FirestoreHelper {
     String uid = await _getOrCreateUID();
 
     // 사용자 문서가 이미 존재하는지 확인
-    DocumentSnapshot userDocSnapshot = await _firestore.collection('User').doc(uid).get();
+    DocumentSnapshot userDocSnapshot =
+        await _firestore.collection('User').doc(uid).get();
     if (!userDocSnapshot.exists) {
       // 사용자 문서가 없으면 새로 생성
       try {
@@ -32,7 +33,7 @@ class FirestoreHelper {
           'id': uid,
           'keywords': [],
           'tickets': [],
-          'createdAt': DateTime.now().toLocal(),
+          'createdAt': DateTime.now().localTime,
         });
         print("새 사용자 문서 생성됨: $uid");
       } catch (e) {
@@ -42,7 +43,6 @@ class FirestoreHelper {
       print("사용자 문서 이미 존재: $uid");
     }
   }
-
 
   // 여러 이미지 정보 저장
   static Future<void> storeImages(List<Map<String, dynamic>> imagesData) async {
