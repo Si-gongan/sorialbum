@@ -31,6 +31,7 @@ class FirestoreHelper {
       try {
         await _firestore.collection('User').doc(uid).set({
           'id': uid,
+          'imageNum': 0,
           'keywords': [],
           'tickets': [],
           'createdAt': DateTime.now().localTime,
@@ -55,19 +56,23 @@ class FirestoreHelper {
       // 각 이미지 데이터에 대해 반복
       for (var imageData in imagesData) {
         // 새로운 문서 ID를 생성
-        DocumentReference docRef = _firestore.collection('Image').doc();
+        DocumentReference imageDocRef = _firestore.collection('Image').doc();
 
         // Batch에 set 작업 추가
-        batch.set(docRef, {
+        batch.set(imageDocRef, {
           'userId': uid,
           'url': imageData['imageUrl'],
           'caption': imageData['caption'],
           'tags': imageData['generalTags']?.split(','),
           'description': imageData['description'],
           'ocr': imageData['ocr'],
-          'storedAt': imageData['storedAt'],
+          'storedAt': DateTime.parse(imageData['storedAt']),
         });
       }
+
+      DocumentReference userDocRef = _firestore.collection('User').doc(uid);
+
+      batch.update(userDocRef, {'imageNum': FieldValue.increment(imagesData.length)});
 
       // Batch 작업을 실행하여 모든 이미지 정보를 한 번에 Firestore에 저장
       await batch.commit();
@@ -84,7 +89,7 @@ class FirestoreHelper {
     try {
       await _firestore.collection('User').doc(uid).update({
         'keywords': FieldValue.arrayUnion([
-          {'keyword': keyword, 'createdAt': DateTime.now().toLocal()}
+          {'keyword': keyword, 'createdAt': DateTime.now().localTime}
         ]),
       });
     } catch (e) {
@@ -99,7 +104,7 @@ class FirestoreHelper {
     try {
       await _firestore.collection('User').doc(uid).update({
         'tickets': FieldValue.arrayUnion([
-          {'createdAt': DateTime.now().toLocal()}
+          {'createdAt': DateTime.now().localTime}
         ]),
       });
     } catch (e) {

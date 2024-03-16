@@ -18,12 +18,12 @@ import 'bindings/bindings.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  tz.initializeTimeZones(); 
+
   await GetStorage.init();
   
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await FirestoreHelper.createUserDocumentIfNeeded();
-
-  tz.initializeTimeZones();
 
   runApp(GetMaterialApp(
     debugShowCheckedModeBanner: false,
