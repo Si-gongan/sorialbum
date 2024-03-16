@@ -1,4 +1,9 @@
 PODS:
+  - cloud_firestore (4.15.9):
+    - Firebase/Firestore (= 10.22.0)
+    - firebase_core
+    - Flutter
+    - nanopb (< 2.30910.0, >= 2.30908.0)
   - Firebase/Analytics (10.22.0):
     - Firebase/Core
   - Firebase/Core (10.22.0):
@@ -6,6 +11,9 @@ PODS:
     - FirebaseAnalytics (~> 10.22.0)
   - Firebase/CoreOnly (10.22.0):
     - FirebaseCore (= 10.22.0)
+  - Firebase/Firestore (10.22.0):
+    - Firebase/CoreOnly
+    - FirebaseFirestore (~> 10.22.0)
   - Firebase/Storage (10.22.0):
     - Firebase/CoreOnly
     - FirebaseStorage (~> 10.22.0)
@@ -13,7 +21,7 @@ PODS:
     - Firebase/Analytics (= 10.22.0)
     - firebase_core
     - Flutter
-  - firebase_core (2.27.0):
+  - firebase_core (2.27.1):
     - Firebase/CoreOnly (= 10.22.0)
     - Flutter
   - firebase_storage (11.6.0):
@@ -48,11 +56,33 @@ PODS:
     - FirebaseCore (~> 10.0)
   - FirebaseCoreInternal (10.22.0):
     - "GoogleUtilities/NSData+zlib (~> 7.8)"
+  - FirebaseFirestore (10.22.0):
+    - FirebaseFirestoreBinary (= 10.22.0)
+  - FirebaseFirestoreAbseilBinary (1.2022062300.0)
+  - FirebaseFirestoreBinary (10.22.0):
+    - FirebaseCore (= 10.22.0)
+    - FirebaseCoreExtension (= 10.22.0)
+    - FirebaseFirestoreInternalBinary (= 10.22.0)
+    - FirebaseSharedSwift (= 10.22.0)
+  - FirebaseFirestoreGRPCBoringSSLBinary (1.49.1)
+  - FirebaseFirestoreGRPCCoreBinary (1.49.1):
+    - FirebaseFirestoreAbseilBinary (= 1.2022062300.0)
+    - FirebaseFirestoreGRPCBoringSSLBinary (= 1.49.1)
+  - FirebaseFirestoreGRPCCPPBinary (1.49.1):
+    - FirebaseFirestoreAbseilBinary (= 1.2022062300.0)
+    - FirebaseFirestoreGRPCCoreBinary (= 1.49.1)
+  - FirebaseFirestoreInternalBinary (10.22.0):
+    - FirebaseCore (= 10.22.0)
+    - FirebaseFirestoreAbseilBinary (= 1.2022062300.0)
+    - FirebaseFirestoreGRPCCPPBinary (= 1.49.1)
+    - leveldb-library (~> 1.22)
+    - nanopb (< 2.30911.0, >= 2.30908.0)
   - FirebaseInstallations (10.22.0):
     - FirebaseCore (~> 10.0)
     - GoogleUtilities/Environment (~> 7.8)
     - GoogleUtilities/UserDefaults (~> 7.8)
     - PromisesObjC (~> 2.1)
+  - FirebaseSharedSwift (10.22.0)
   - FirebaseStorage (10.22.0):
     - FirebaseAppCheckInterop (~> 10.0)
     - FirebaseAuthInterop (~> 10.0)
@@ -111,11 +141,12 @@ PODS:
   - GTMSessionFetcher/Core (3.3.1)
   - image_picker_ios (0.0.1):
     - Flutter
-  - nanopb (2.30910.0):
-    - nanopb/decode (= 2.30910.0)
-    - nanopb/encode (= 2.30910.0)
-  - nanopb/decode (2.30910.0)
-  - nanopb/encode (2.30910.0)
+  - leveldb-library (1.22.4)
+  - nanopb (2.30909.1):
+    - nanopb/decode (= 2.30909.1)
+    - nanopb/encode (= 2.30909.1)
+  - nanopb/decode (2.30909.1)
+  - nanopb/encode (2.30909.1)
   - path_provider_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
@@ -130,9 +161,11 @@ PODS:
     - FlutterMacOS
 
 DEPENDENCIES:
+  - cloud_firestore (from `.symlinks/plugins/cloud_firestore/ios`)
   - firebase_analytics (from `.symlinks/plugins/firebase_analytics/ios`)
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
   - firebase_storage (from `.symlinks/plugins/firebase_storage/ios`)
+  - FirebaseFirestore (from `https://github.com/invertase/firestore-ios-sdk-frameworks.git`, tag `10.22.0`)
   - Flutter (from `Flutter`)
   - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
@@ -149,21 +182,34 @@ SPEC REPOS:
     - FirebaseCore
     - FirebaseCoreExtension
     - FirebaseCoreInternal
+    - FirebaseFirestoreAbseilBinary
+    - FirebaseFirestoreBinary
+    - FirebaseFirestoreGRPCBoringSSLBinary
+    - FirebaseFirestoreGRPCCoreBinary
+    - FirebaseFirestoreGRPCCPPBinary
+    - FirebaseFirestoreInternalBinary
     - FirebaseInstallations
+    - FirebaseSharedSwift
     - FirebaseStorage
     - GoogleAppMeasurement
     - GoogleUtilities
     - GTMSessionFetcher
+    - leveldb-library
     - nanopb
     - PromisesObjC
 
 EXTERNAL SOURCES:
+  cloud_firestore:
+    :path: ".symlinks/plugins/cloud_firestore/ios"
   firebase_analytics:
     :path: ".symlinks/plugins/firebase_analytics/ios"
   firebase_core:
     :path: ".symlinks/plugins/firebase_core/ios"
   firebase_storage:
     :path: ".symlinks/plugins/firebase_storage/ios"
+  FirebaseFirestore:
+    :git: https://github.com/invertase/firestore-ios-sdk-frameworks.git
+    :tag: 10.22.0
   Flutter:
     :path: Flutter
   image_picker_ios:
@@ -177,10 +223,16 @@ EXTERNAL SOURCES:
   sqflite:
     :path: ".symlinks/plugins/sqflite/darwin"
 
+CHECKOUT OPTIONS:
+  FirebaseFirestore:
+    :git: https://github.com/invertase/firestore-ios-sdk-frameworks.git
+    :tag: 10.22.0
+
 SPEC CHECKSUMS:
+  cloud_firestore: 9d69182af1d677062f005584ca5470a19e1f68e7
   Firebase: 797fd7297b7e1be954432743a0b3f90038e45a71
   firebase_analytics: 78a580adc213ba892f57095ca254aa2aa69793bc
-  firebase_core: 100945864b4aedce3cfef0c62ab864858bf013cf
+  firebase_core: d6dfb4cb86a9ebd92464bb8736075fe967211c97
   firebase_storage: 789ada6101eff116776da88f0cdb4519376e134d
   FirebaseAnalytics: 8d0ff929c63b7f72260f332b86ccf569776b75d3
   FirebaseAppCheckInterop: 58db3e9494751399cf3e7b7e3e705cff71099153
@@ -188,20 +240,29 @@ SPEC CHECKSUMS:
   FirebaseCore: 0326ec9b05fbed8f8716cddbf0e36894a13837f7
   FirebaseCoreExtension: 6394c00b887d0bebadbc7049c464aa0cbddc5d41
   FirebaseCoreInternal: bca337352024b18424a61e478460547d46c4c753
+  FirebaseFirestore: 6a8bd88aedb9def0411f53e03b564278685fed93
+  FirebaseFirestoreAbseilBinary: fc2004a2da6b5978e974ca49c2e463f5e542a78f
+  FirebaseFirestoreBinary: c59e4adb329348a5a2479614f718c5b4f7429d5b
+  FirebaseFirestoreGRPCBoringSSLBinary: 85a615c0b7e97173d6af581c9879baac663d9743
+  FirebaseFirestoreGRPCCoreBinary: bf6ed68cea8ad7b24ba091b53374e91a5211a91f
+  FirebaseFirestoreGRPCCPPBinary: cff111ba3ae5bea45a6562e8bd8750d4a7e2ebc6
+  FirebaseFirestoreInternalBinary: 5f38434cc9b36a6897a616a14e85d00c890c5634
   FirebaseInstallations: 763814908793c0da14c18b3dcffdec71e29ed55e
+  FirebaseSharedSwift: 48076404e6e52372290d15a07d2ed1d2f1754023
   FirebaseStorage: bc7bddc743548a89cfb896843a77cf4bdde2c231
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   GoogleAppMeasurement: ccefe3eac9b0aa27f96066809fb1a7fe4b462626
   GoogleUtilities: d053d902a8edaa9904e1bd00c37535385b8ed152
   GTMSessionFetcher: 8a1b34ad97ebe6f909fb8b9b77fba99943007556
   image_picker_ios: 99dfe1854b4fa34d0364e74a78448a0151025425
-  nanopb: 438bc412db1928dac798aa6fd75726007be04262
+  leveldb-library: 06a69cc7582d64b29424a63e085e683cc188230a
+  nanopb: d4d75c12cd1316f4a64e3c6963f879ecd4b5e0d5
   path_provider_foundation: 3784922295ac71e43754bd15e0653ccfd36a147c
   photo_manager: 4f6810b7dfc4feb03b461ac1a70dacf91fba7604
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   share_plus: c3fef564749587fc939ef86ffb283ceac0baf9f5
   sqflite: 673a0e54cc04b7d6dba8d24fb8095b31c3a99eec
 
-PODFILE CHECKSUM: 075ddf6b19cdcced44581bd8fbdfb58404a78f8a
+PODFILE CHECKSUM: 10607881311f322270f4c3c1e54c746434f3de45
 
 COCOAPODS: 1.15.2

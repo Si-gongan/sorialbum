@@ -33,11 +33,11 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>In order to take a photo and upload to local storage</string>
+	<string>소리앨범에 추가할 사진을 촬영하기 위해 권한이 필요합니다. 촬영된 사진은 캡션과 함께 소리앨범에 저장됩니다.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>In order to use mic</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>In order to access your photo library</string>
+	<string>소리앨범에 추가할 사진을 라이브러리에서 선택하기 위해 권한이 필요합니다. 선택된 사진은 캡션과 함께 소리앨범에 저장됩니다. </string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>

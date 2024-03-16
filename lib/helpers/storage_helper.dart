@@ -1,4 +1,5 @@
 import 'package:get_storage/get_storage.dart';
+import 'firestore_helper.dart';
 import 'utils.dart';
 
 class SearchHistoryManager {
@@ -10,6 +11,7 @@ class SearchHistoryManager {
     List<String> history = getSearchHistory();
     history.add(query);
     _storage.write(_historyKey, history);
+    FirestoreHelper.addKeywordSearch(query);
   }
 
   // 검색 기록 불러오기
@@ -52,6 +54,7 @@ class TicketManager {
       _box.write(_ticketKey, current - 1);
       _box.write(_lastUpdateKey, DateTime.now().localTime.toString());
     }
+    FirestoreHelper.useTicket();
   }
 
   // 자정에 이용권 개수를 초기화하는 로직을 구현합니다.

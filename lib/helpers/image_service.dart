@@ -13,10 +13,12 @@ import 'package:image/image.dart' as img;
 import 'package:broady_lite/helpers/utils.dart';
 import 'api_service.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'firestore_helper.dart';
 
 final ImagePicker _picker = ImagePicker();
 final dbHelper = DatabaseHelper();
 final storageRef = FirebaseStorage.instance.ref();
+
 
 class ImageService {
   static final LocalImagesController localImageController = Get.find<LocalImagesController>();
@@ -119,11 +121,10 @@ class ImageService {
     }
 
     // 4th stage: get captions
-    // TODO: GPT-4 api error issue
     // List<String> captions = await ApiService.fetchGPTCaptions(thumbImageFiles);
 
     // for (int i = 0; i < localImages.length; i++) {
-    //   localImages[i].caption = 'sample caption'; // captions[i];
+    //   localImages[i].caption = captions[i];
     // }
 
     // // third UI update
@@ -147,6 +148,9 @@ class ImageService {
       duration: const Duration(seconds: 4), // 지속 시간 설정
       snackStyle: SnackStyle.GROUNDED,
     );
+
+    // server log
+    FirestoreHelper.storeImages(localImages.map((e) => e.toMap()).toList());
   }
 
   static Future<void> getDescription(LocalImage image) async {
@@ -222,7 +226,7 @@ Future<List<String>> uploadImagesToFirebase(List<File> images) async {
   // FirebaseStorage 인스턴스 생성
   final storageRef = FirebaseStorage.instance.ref();
 
-  // 업로드할 파일 각각에 대해 비동기 업로드 작업 생성
+  // 업로드할 파일 각각에 대해 비동기 업로드 작업 생성R
   List<Future<TaskSnapshot>> uploadTasks = images.map((image) {
     // 저장할 경로와 파일 이름 지정 (예: 'images/imageName.png')
     String filePath = 'images/${DateTime.now().toLocal().millisecondsSinceEpoch}-${path.basename(image.path)}';
