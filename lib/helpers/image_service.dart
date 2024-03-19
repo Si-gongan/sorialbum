@@ -108,6 +108,7 @@ class ImageService {
               for (var key in [
                 'assetPath',
                 'imageUrl',
+                'firestoreId',
                 'generalTags',
                 'vector',
                 'caption'
@@ -149,8 +150,20 @@ class ImageService {
       snackStyle: SnackStyle.GROUNDED,
     );
 
-    // server log
-    FirestoreHelper.storeImages(localImages.map((e) => e.toMap()).toList());
+    // 4th stage: firestore
+    final firestoreIds = await FirestoreHelper.storeImages(localImages.map((e) => e.toMap()).toList());
+
+    for (int i = 0; i < localImages.length; i++) {
+      localImages[i].firestoreId = firestoreIds[i];
+    }
+    await dbHelper.updateImagesByMaps(localImages
+        .map((e) => {
+              for (var key in [
+                'firestoreId'
+              ])
+                key: e.toMap()[key]
+            })
+        .toList());
   }
 
   static Future<void> getDescription(LocalImage image) async {

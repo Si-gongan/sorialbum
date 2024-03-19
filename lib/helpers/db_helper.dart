@@ -23,7 +23,7 @@ class DatabaseHelper {
       path.join(path_, 'galleryApp.db'),
       onCreate: (db, version) {
         return db.execute(
-          'CREATE TABLE images(id INTEGER PRIMARY KEY AUTOINCREMENT, assetPath TEXT, thumbAssetPath TEXT, imageUrl TEXT, caption TEXT, description TEXT, ocr TEXT, userMemo TEXT, generalTags TEXT, alertTags TEXT, vector TEXT, storedAt TEXT, createdAt TEXT)',
+          'CREATE TABLE images(id INTEGER PRIMARY KEY AUTOINCREMENT, assetPath TEXT, thumbAssetPath TEXT, imageUrl TEXT, firestoreId TEXT, caption TEXT, description TEXT, ocr TEXT, userMemo TEXT, generalTags TEXT, alertTags TEXT, vector TEXT, storedAt TEXT, createdAt TEXT)',
         );
       },
       version: 1,

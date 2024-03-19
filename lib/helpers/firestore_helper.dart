@@ -32,6 +32,7 @@ class FirestoreHelper {
         await _firestore.collection('User').doc(uid).set({
           'id': uid,
           'imageNum': 0,
+          'sharedImages': [],
           'keywords': [],
           'tickets': [],
           'createdAt': DateTime.now().localTime,
@@ -46,14 +47,15 @@ class FirestoreHelper {
   }
 
   // 여러 이미지 정보 저장
-  static Future<void> storeImages(List<Map<String, dynamic>> imagesData) async {
+  static Future<List<String>> storeImages(List<Map<String, dynamic>> imagesData) async {
     String uid = await _getOrCreateUID();
 
     // WriteBatch 인스턴스 생성
     WriteBatch batch = _firestore.batch();
 
     try {
-      // 각 이미지 데이터에 대해 반복
+      List<String> documentIds = [];
+
       for (var imageData in imagesData) {
         // 새로운 문서 ID를 생성
         DocumentReference imageDocRef = _firestore.collection('Image').doc();
@@ -68,6 +70,8 @@ class FirestoreHelper {
           'ocr': imageData['ocr'],
           'storedAt': DateTime.parse(imageData['storedAt']),
         });
+
+        documentIds.add(imageDocRef.id);
       }
 
       DocumentReference userDocRef = _firestore.collection('User').doc(uid);
@@ -76,6 +80,8 @@ class FirestoreHelper {
 
       // Batch 작업을 실행하여 모든 이미지 정보를 한 번에 Firestore에 저장
       await batch.commit();
+
+      return documentIds;
     } catch (e) {
       print(e.toString());
       throw e; // 에러 처리 또는 추가 로직
@@ -111,6 +117,19 @@ class FirestoreHelper {
       print(e.toString());
     }
   }
+  
+  // 공유 이미지 기록 저장
+  static Future<void> sharedImage(Map<String, dynamic> image) async {
+    try {
+      await _firestore.collection('Image').doc(image['firestoreId']).update({
+        'shared': FieldValue.arrayUnion([{'sharedAt': DateTime.now().localTime}])
+      });
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
+  // TODO: 이용권 로직 서버 연동
 
   // // 하루에 사용 가능한 티켓 수 검사 (하루 10개 제한)
   // Future<bool> canUseTicket(String userId) async {

@@ -24,6 +24,7 @@ class LocalImage extends _Image {
   final String assetPath;
   String? thumbAssetPath;
   String? imageUrl;
+  String? firestoreId;
 
   LocalImage(this.assetPath);
 
@@ -33,6 +34,7 @@ class LocalImage extends _Image {
       'assetPath': assetPath,
       'thumbAssetPath': thumbAssetPath,
       'imageUrl': imageUrl,
+      'firestoreId': firestoreId,
       'caption': caption,
       'description': description,
       'ocr': ocr,
@@ -52,6 +54,7 @@ class LocalImage extends _Image {
     localImage.id = map['id'];
     localImage.thumbAssetPath = map['thumbAssetPath'];
     localImage.imageUrl = map['imageUrl'];
+    localImage.firestoreId = map['firestoreId'];
     localImage.caption = map['caption'];
     localImage.description = map['description'];
     localImage.ocr = map['ocr'];

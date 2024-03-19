@@ -6,6 +6,7 @@ import '../controllers/search_image_controller.dart';
 import '../models/image.dart';
 import '../helpers/image_service.dart';
 import '../helpers/storage_helper.dart';
+import '../helpers/firestore_helper.dart';
 import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
@@ -75,12 +76,16 @@ class _ImageDetailState extends State<ImageDetail> {
                           CupertinoActionSheetAction(
                             onPressed: () async {
                               Navigator.pop(context);
-                              await Share.shareXFiles([
+                              final result = await Share.shareXFiles([
                                 XFile(controller
                                     .images![controller.index].assetPath)
                               ],
                                   text: controller
                                       .images![controller.index].caption);
+                              if (result.status == ShareResultStatus.success) {
+                                FirestoreHelper.sharedImage(controller
+                                      .images![controller.index].toMap());
+                              }
                             },
                             child: const Text('공유하기'),
                           ),
