@@ -1,4 +1,7 @@
 import 'package:broady_lite/helpers/utils.dart';
+import 'package:broady_lite/app_config.dart';
+import 'package:path/path.dart' as path;
+
 
 class _Image {
   int? id;
@@ -27,6 +30,14 @@ class LocalImage extends _Image {
   String? firestoreId;
 
   LocalImage(this.assetPath);
+  
+  String getPath({thumbnail=false}) {
+    if (thumbnail){
+      return path.join(AppConfig.appDocumentsDirectory!, thumbAssetPath);
+    } else {
+      return path.join(AppConfig.appDocumentsDirectory!, assetPath);
+    }
+  } 
 
   Map<String, dynamic> toMap() {
     return {

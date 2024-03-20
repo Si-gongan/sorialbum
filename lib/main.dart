@@ -15,12 +15,15 @@ import 'screens/album.dart';
 
 import 'bindings/bindings.dart';
 
+import 'app_config.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   tz.initializeTimeZones(); 
 
   await GetStorage.init();
+  await AppConfig.initializeApp();
   
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await FirestoreHelper.createUserDocumentIfNeeded();

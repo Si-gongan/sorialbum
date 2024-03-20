@@ -7,6 +7,7 @@ import '../models/image.dart';
 import '../controllers/local_images_controller.dart';
 import 'dart:io';
 import 'dart:ui';
+import 'package:intl/intl.dart';
 
 class Home extends GetView<LocalImagesController> {
   Home({super.key});
@@ -34,6 +35,7 @@ class Home extends GetView<LocalImagesController> {
           title:
               Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
             IconButton(
+              tooltip: '사진 촬영하기',
               icon: const Icon(
                 CupertinoIcons.camera_fill,
                 color: Colors.black54,
@@ -49,6 +51,7 @@ class Home extends GetView<LocalImagesController> {
               },
             ),
             IconButton(
+              tooltip: '갤러리에서 불러오기',
               icon: const Icon(CupertinoIcons.photo,
                   color: Colors.black54, size: 30),
               onPressed: () async {
@@ -61,6 +64,7 @@ class Home extends GetView<LocalImagesController> {
               },
             ),
             IconButton(
+              tooltip: '사진 검색하기',
               icon: const Icon(CupertinoIcons.search,
                   color: Colors.black54, size: 30),
               onPressed: () {
@@ -70,40 +74,44 @@ class Home extends GetView<LocalImagesController> {
           ]),
           backgroundColor: Colors.white,
         ),
-        floatingActionButton: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(28), // FAB의 모서리 둥글기
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.15),
-                blurRadius: 20,
-                spreadRadius: 4,
-                offset: const Offset(0, 4), // 그림자 위치 조정
-              ),
-            ],
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(28), // FAB의 모서리 둥글기를 조정합니다.
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10), // 블러 효과 적용
-              child: Container(
-                color: Colors.white.withOpacity(0.7), // 반투명한 흰색 배경
-                width: 56, // FAB 기본 크기와 동일
-                height: 56,
-                child: Material(
-                  type: MaterialType.transparency,
-                  child: InkWell(
-                    onTap: () {
-                      showCupertinoModalPopup(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return CupertinoPopupSurface(
-                              child: _onboardingPageView());
-                        },
-                      );
-                    }, // 여기에 버튼 클릭 시 수행할 동작을 추가합니다.
-                    child: const Center(
-                      child: Icon(CupertinoIcons.question, color: Colors.black),
+        floatingActionButton: Semantics(
+          label: '도움말 보기',
+          button: true, 
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(28), // FAB의 모서리 둥글기
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.15),
+                  blurRadius: 20,
+                  spreadRadius: 4,
+                  offset: const Offset(0, 4), // 그림자 위치 조정
+                ),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(28), // FAB의 모서리 둥글기를 조정합니다.
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10), // 블러 효과 적용
+                child: Container(
+                  color: Colors.white.withOpacity(0.7), // 반투명한 흰색 배경
+                  width: 56, // FAB 기본 크기와 동일
+                  height: 56,
+                  child: Material(
+                    type: MaterialType.transparency,
+                    child: InkWell(
+                      onTap: () {
+                        showCupertinoModalPopup(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return CupertinoPopupSurface(
+                                child: _onboardingPageView());
+                          },
+                        );
+                      }, // 여기에 버튼 클릭 시 수행할 동작을 추가합니다.
+                      child: const Center(
+                        child: Icon(CupertinoIcons.question, color: Colors.black),
+                      ),
                     ),
                   ),
                 ),
@@ -127,79 +135,96 @@ class Home extends GetView<LocalImagesController> {
                       "${month.split('-')[0]}년 ${int.parse(month.split('-')[1])}월";
                   Map<String, List<LocalImage>> dateGroups =
                       groupedImages[month]!;
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        width: double.infinity,
-                        color: Colors.black.withOpacity(0.05),
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 8, horizontal: 12),
-                        child: Text(monthString,
-                            style: const TextStyle(
-                                fontSize: 20, fontWeight: FontWeight.w600)),
-                      ),
-                      for (int i = 0; i < dateGroups.keys.length; i++)
-                        Container(
-                          margin: EdgeInsets.only(
-                              bottom: i < dateGroups.keys.length - 1 ? 2 : 0),
-                          child: GridView.count(
-                            physics: const ClampingScrollPhysics(),
-                            shrinkWrap: true,
-                            crossAxisCount: 4,
-                            crossAxisSpacing: 2,
-                            mainAxisSpacing: 2,
-                            children: List.generate(
-                                dateGroups[dateGroups.keys.elementAt(i)]!
-                                    .length, (index) {
-                              final image = dateGroups[
-                                  dateGroups.keys.elementAt(i)]![index];
-                              if (index == 0) {
-                                String dateString =
-                                    "${int.parse(dateGroups.keys.elementAt(i).split('-')[2])}일";
-                                return GestureDetector(
-                                  onTap: () {
-                                    controller.setCurrentIndex(image.countId!);
-                                    Get.toNamed('/image_detail');
-                                  },
-                                  child: Stack(
-                                    fit: StackFit.expand,
-                                    children: [
-                                      Hero(
+                  return Semantics(
+                    explicitChildNodes: true,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Semantics(
+                          header: true,
+                          child: Container(
+                            width: double.infinity,
+                            color: Colors.black.withOpacity(0.05),
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 8, horizontal: 12),
+                            child: Text(monthString,
+                                style: const TextStyle(
+                                    fontSize: 20, fontWeight: FontWeight.w600)),
+                          ),
+                        ),
+                        for (int i = 0; i < dateGroups.keys.length; i++)
+                          Container(
+                            margin: EdgeInsets.only(
+                                bottom: i < dateGroups.keys.length - 1 ? 2 : 0),
+                            child: GridView.count(
+                              physics: const ClampingScrollPhysics(),
+                              shrinkWrap: true,
+                              crossAxisCount: 4,
+                              crossAxisSpacing: 2,
+                              mainAxisSpacing: 2,
+                              children: List.generate(
+                                  dateGroups[dateGroups.keys.elementAt(i)]!
+                                      .length, (index) {
+                                final image = dateGroups[
+                                    dateGroups.keys.elementAt(i)]![index];
+                                final semanticLabel = '${DateFormat('d일 a h시 m분', 'ko_KR').format(image.createdAt)} ${image.caption}';
+                                if (index == 0) {
+                                  String dateString =
+                                      "${int.parse(dateGroups.keys.elementAt(i).split('-')[2])}일";
+                                  return Semantics(
+                                    label: semanticLabel,
+                                    explicitChildNodes: true,
+                                    excludeSemantics: true,
+                                    button: true,
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        controller.setCurrentIndex(image.countId!);
+                                        Get.toNamed('/image_detail');
+                                      },
+                                      child: Stack(
+                                        fit: StackFit.expand,
+                                        children: [
+                                          Hero(
+                                            tag: 'image_${image.countId}',
+                                            child: Image.file(
+                                              File(image.getPath(thumbnail: true)),
+                                              fit: BoxFit.cover,
+                                            ),
+                                          ),
+                                          Positioned(
+                                              top: 5,
+                                              left: 5,
+                                              child: _dateBlurredContainer(
+                                                  dateString)),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                } else {
+                                  return Semantics(
+                                    label: semanticLabel,
+                                    explicitChildNodes: true,
+                                    excludeSemantics: true,
+                                    button: true,
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        controller.setCurrentIndex(image.countId!);
+                                        Get.toNamed('/image_detail');
+                                      },
+                                      child: Hero(
                                         tag: 'image_${image.countId}',
                                         child: Image.file(
-                                          File(image.thumbAssetPath ??
-                                              image.assetPath),
-                                          fit: BoxFit.cover,
-                                        ),
+                                            File(image.getPath(thumbnail: true)),
+                                            fit: BoxFit.cover),
                                       ),
-                                      Positioned(
-                                          top: 5,
-                                          left: 5,
-                                          child: _dateBlurredContainer(
-                                              dateString)),
-                                    ],
-                                  ),
-                                );
-                              } else {
-                                return GestureDetector(
-                                  onTap: () {
-                                    controller.setCurrentIndex(image.countId!);
-                                    Get.toNamed('/image_detail');
-                                  },
-                                  child: Hero(
-                                    tag: 'image_${image.countId}',
-                                    child: Image.file(
-                                        File(image.thumbAssetPath ??
-                                            image.assetPath),
-                                        fit: BoxFit.cover),
-                                  ),
-                                );
-                              }
-                            }),
-                          ),
-                        )
-                    ],
+                                    ),
+                                  );
+                                }
+                              }),
+                            ),
+                          )
+                      ],
+                    ),
                   );
                 });
           }
@@ -248,13 +273,16 @@ class Home extends GetView<LocalImagesController> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            GestureDetector(
-              child: const Text('닫기',
-                  style: TextStyle(
-                      inherit: false, color: Colors.black, fontSize: 16)),
-              onTap: () {
-                Get.back();
-              },
+            Semantics(
+              button: true,
+              child: GestureDetector(
+                child: const Text('닫기',
+                    style: TextStyle(
+                        inherit: false, color: Colors.black, fontSize: 16)),
+                onTap: () {
+                  Get.back();
+                },
+              ),
             ),
             const SizedBox(height: 14),
             const Text('소리앨범에 오신 것을 환영합니다!',
@@ -289,13 +317,16 @@ class Home extends GetView<LocalImagesController> {
                 style: TextStyle(
                     inherit: false, color: Colors.black, fontSize: 16)),
             const SizedBox(height: 16),
-            GestureDetector(
-              child: const Text('확인',
-                  style: TextStyle(
-                      inherit: false, color: Colors.black, fontSize: 16)),
-              onTap: () {
-                Get.back();
-              },
+            Semantics(
+              button: true,
+              child: GestureDetector(
+                child: const Text('확인',
+                    style: TextStyle(
+                        inherit: false, color: Colors.black, fontSize: 16)),
+                onTap: () {
+                  Get.back();
+                },
+              ),
             ),
           ],
         ));

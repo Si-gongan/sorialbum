@@ -14,6 +14,7 @@ import 'package:broady_lite/helpers/utils.dart';
 import 'api_service.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'firestore_helper.dart';
+import '../app_config.dart';
 
 final ImagePicker _picker = ImagePicker();
 final dbHelper = DatabaseHelper();
@@ -79,8 +80,8 @@ class ImageService {
 
     
     final List<File> thumbImageFiles =
-      await Future.wait(localImageFilePaths.map((path) async {
-      final File imageFile = File(path['thumbSavedPath']!);
+      await Future.wait(localImageFilePaths.map((path_) async {
+      final File imageFile = File(path.join(AppConfig.appDocumentsDirectory!, path_['thumbSavedPath']!));
       return imageFile;
     }));
 
@@ -108,7 +109,6 @@ class ImageService {
               for (var key in [
                 'assetPath',
                 'imageUrl',
-                'firestoreId',
                 'generalTags',
                 'vector',
                 'caption'
@@ -173,7 +173,7 @@ class ImageService {
       searchImageController.updateImage(image);
     }
 
-    File imageFile = File(image.assetPath);
+    File imageFile = File(image.getPath());
     final description = await ApiService.fetchImageDescription(imageFile);
     image.description = description;
 
@@ -204,7 +204,7 @@ class ImageService {
       searchImageController.updateImage(image);
     }
 
-    File imageFile = File(image.assetPath);
+    File imageFile = File(image.getPath());
     final texts = await ApiService.fetchImageOCRs([imageFile]);
     image.ocr = texts[0];
 
@@ -276,9 +276,9 @@ Future<Map<String, String>> saveImage(File imageFile) async {
   await imageFile.copy(savedPath);
 
   // 썸네일 저장
-  final thumbSavedPath = await createThumbnail(imageFile.path, directory.path);
+  final thumbFileName= await createThumbnail(imageFile.path, directory.path);
 
-  return {'savedPath': savedPath, 'thumbSavedPath': thumbSavedPath};
+  return {'savedPath': fileName, 'thumbSavedPath': thumbFileName};
 }
 
 Future<String> createThumbnail(String filePath, String saveDir) async {
@@ -297,7 +297,7 @@ Future<String> createThumbnail(String filePath, String saveDir) async {
   File(thumbSavedPath).writeAsBytesSync(
       img.encodeJpg(thumbnail, quality: 90)); // 품질은 필요에 따라 조절 가능
 
-  return thumbSavedPath;
+  return thumbFileName;
 }
 
 Future<List<DateTime?>> getDateTimeOriginals(List<File> imageFiles) async {

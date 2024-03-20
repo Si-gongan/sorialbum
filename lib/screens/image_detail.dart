@@ -65,6 +65,7 @@ class _ImageDetailState extends State<ImageDetail> {
               //   isDismissible: true,);
               // }),
               IconButton(
+                  tooltip: '메뉴보기',
                   icon: const Icon(CupertinoIcons.ellipsis_circle, size: 30),
                   onPressed: () {
                     showCupertinoModalPopup(
@@ -150,7 +151,7 @@ class _ImageDetailState extends State<ImageDetail> {
                       tag: arguments == 'search'
                           ? 'search_image_$index'
                           : 'image_$index',
-                      child: Image.file(File(image.assetPath),
+                      child: Image.file(File(image.getPath()),
                           fit: BoxFit.contain));
                 },
               ),
@@ -236,69 +237,72 @@ class _ImageDetailState extends State<ImageDetail> {
     if (type == Annotation.description) {
       if (image.description == null) {
         return Center(
-          child: GestureDetector(
-            child: Container(
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                    color: const Color.fromARGB(255, 113, 113, 113),
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                          color: Colors.black.withOpacity(0.25))
-                    ]),
-                width: 140,
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                margin: const EdgeInsets.only(top: 10),
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(CupertinoIcons.sparkles,
-                        size: 16, color: Colors.white),
-                    SizedBox(width: 6),
-                    Text('설명 생성하기', style: TextStyle(color: Colors.white)),
-                  ],
-                )),
-            onTap: () async {
-              showCupertinoDialog(
-                  context: context,
-                  builder: (context) => CupertinoAlertDialog(
-                        title: const Text('알림'),
-                        content: Text(TicketManager.currentTickets != 0
-                            ? '이용권을 소비하여 설명을 생성합니다.\n(남은 일일 이용권: ${TicketManager.currentTickets}개)'
-                            : '이용권을 모두 소진하였습니다.\n내일이 되면 이용권 10개를 받을 수 있어요.'),
-                        actions: TicketManager.currentTickets != 0
-                            ? <Widget>[
-                                // 다이얼로그 닫기 버튼
-                                CupertinoDialogAction(
-                                  isDestructiveAction: true,
-                                  child: const Text('취소'),
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                ),
-                                // 다른 액션을 수행하는 버튼
-                                CupertinoDialogAction(
-                                  child: const Text('생성'),
-                                  onPressed: () async {
-                                    Navigator.of(context).pop();
-                                    TicketManager.useTicket();
-                                    await ImageService.getDescription(image);
-                                  },
-                                ),
-                              ]
-                            : <Widget>[
-                                // 다이얼로그 닫기 버튼
-                                CupertinoDialogAction(
-                                  child: const Text('확인'),
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                ),
-                              ],
-                      ));
-            },
+          child: Semantics(
+            button: true, 
+            child: GestureDetector(
+              child: Container(
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                      color: const Color.fromARGB(255, 113, 113, 113),
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                            color: Colors.black.withOpacity(0.25))
+                      ]),
+                  width: 140,
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  margin: const EdgeInsets.only(top: 10),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(CupertinoIcons.sparkles,
+                          size: 16, color: Colors.white),
+                      SizedBox(width: 6),
+                      Text('설명 생성하기', style: TextStyle(color: Colors.white)),
+                    ],
+                  )),
+              onTap: () async {
+                showCupertinoDialog(
+                    context: context,
+                    builder: (context) => CupertinoAlertDialog(
+                          title: const Text('알림'),
+                          content: Text(TicketManager.currentTickets != 0
+                              ? '이용권을 소비하여 설명을 생성합니다.\n(남은 일일 이용권: ${TicketManager.currentTickets}개)'
+                              : '이용권을 모두 소진하였습니다.\n내일이 되면 이용권 10개를 받을 수 있어요.'),
+                          actions: TicketManager.currentTickets != 0
+                              ? <Widget>[
+                                  // 다이얼로그 닫기 버튼
+                                  CupertinoDialogAction(
+                                    isDestructiveAction: true,
+                                    child: const Text('취소'),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
+                                  // 다른 액션을 수행하는 버튼
+                                  CupertinoDialogAction(
+                                    child: const Text('생성'),
+                                    onPressed: () async {
+                                      Navigator.of(context).pop();
+                                      TicketManager.useTicket();
+                                      await ImageService.getDescription(image);
+                                    },
+                                  ),
+                                ]
+                              : <Widget>[
+                                  // 다이얼로그 닫기 버튼
+                                  CupertinoDialogAction(
+                                    child: const Text('확인'),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
+                                ],
+                        ));
+              },
+            ),
           ),
         );
       } else if (image.description == "설명을 생성중이에요...") {
@@ -319,33 +323,36 @@ class _ImageDetailState extends State<ImageDetail> {
     } else {
       if (image.ocr == null) {
         return Center(
-          child: GestureDetector(
-            child: Container(
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                    color: const Color.fromARGB(255, 113, 113, 113),
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                          color: Colors.black.withOpacity(0.25))
-                    ]),
-                width: 140,
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                margin: const EdgeInsets.only(top: 10),
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(CupertinoIcons.text_cursor,
-                        size: 16, color: Colors.white),
-                    SizedBox(width: 6),
-                    Text('글자 인식하기', style: TextStyle(color: Colors.white)),
-                  ],
-                )),
-            onTap: () async {
-              await ImageService.getOCR(image);
-            },
+          child: Semantics(
+            button: true,
+            child: GestureDetector(
+              child: Container(
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                      color: const Color.fromARGB(255, 113, 113, 113),
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                            color: Colors.black.withOpacity(0.25))
+                      ]),
+                  width: 140,
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  margin: const EdgeInsets.only(top: 10),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(CupertinoIcons.text_cursor,
+                          size: 16, color: Colors.white),
+                      SizedBox(width: 6),
+                      Text('글자 인식하기', style: TextStyle(color: Colors.white)),
+                    ],
+                  )),
+              onTap: () async {
+                await ImageService.getOCR(image);
+              },
+            ),
           ),
         );
       } else if (image.ocr == "글자를 인식중이에요...") {

@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import '../controllers/search_image_controller.dart';
 import 'dart:io';
+import 'package:intl/intl.dart';
 
 class Search extends GetView<SearchImagesController> {
   Search({super.key});
@@ -71,16 +72,22 @@ class Search extends GetView<SearchImagesController> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('최근 검색',
-                          style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.w600)),
-                      InkWell(
-                        onTap: () {
-                          controller.clearSearchHistory();
-                        },
-                        child: const Text('전체 삭제',
+                      Semantics(
+                        header: true,
+                        child: const Text('최근 검색',
                             style: TextStyle(
-                                fontSize: 14, fontWeight: FontWeight.w400)),
+                                fontSize: 16, fontWeight: FontWeight.w600)),
+                      ),
+                      Semantics(
+                        button: true,
+                        child: InkWell(
+                          onTap: () {
+                            controller.clearSearchHistory();
+                          },
+                          child: const Text('전체 삭제',
+                              style: TextStyle(
+                                  fontSize: 14, fontWeight: FontWeight.w400)),
+                        ),
                       ),
                     ],
                   ),
@@ -92,17 +99,20 @@ class Search extends GetView<SearchImagesController> {
                       itemBuilder: (context, index) {
                         String query =
                             controller.queries!.reversed.toList()[index];
-                        return InkWell(
-                          onTap: () {
-                            focusNode.unfocus();
-                            textEditingController.text = query;
-                            controller.queryImages(query);
-                          },
-                          child: Container(
-                              margin: const EdgeInsets.symmetric(
-                                  vertical: 3, horizontal: 20),
-                              child: Text(query,
-                                  style: const TextStyle(fontSize: 14))),
+                        return Semantics(
+                          button: true,
+                          child: InkWell(
+                            onTap: () {
+                              focusNode.unfocus();
+                              textEditingController.text = query;
+                              controller.queryImages(query);
+                            },
+                            child: Container(
+                                margin: const EdgeInsets.symmetric(
+                                    vertical: 3, horizontal: 20),
+                                child: Text(query,
+                                    style: const TextStyle(fontSize: 14))),
+                          ),
                         );
                       }),
                 )
@@ -139,18 +149,24 @@ class Search extends GetView<SearchImagesController> {
                         itemCount: controller.images!.length,
                         itemBuilder: (context, index) {
                           final image = controller.images![index];
-                          return GestureDetector(
-                              onTap: () {
-                                controller.setCurrentIndex(index);
-                                Get.toNamed('/image_detail',
-                                    arguments: 'search');
-                              },
-                              child: Hero(
-                                  tag: 'search_image_$index',
-                                  child: Image.file(
-                                      File(image.thumbAssetPath ??
-                                          image.assetPath),
-                                      fit: BoxFit.cover)));
+                          final semanticLabel = '${DateFormat('yyyy년 M월 d일 a h시 m분', 'ko_KR').format(image.createdAt)} ${image.caption}';
+                          return Semantics(
+                            label: semanticLabel,
+                            button: true, 
+                            explicitChildNodes: true,
+                            excludeSemantics: true,
+                            child: GestureDetector(
+                                onTap: () {
+                                  controller.setCurrentIndex(index);
+                                  Get.toNamed('/image_detail',
+                                      arguments: 'search');
+                                },
+                                child: Hero(
+                                    tag: 'search_image_$index',
+                                    child: Image.file(
+                                        File(image.getPath(thumbnail: true)),
+                                        fit: BoxFit.cover))),
+                          );
                         },
                       ),
                     )
