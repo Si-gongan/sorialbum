@@ -90,7 +90,7 @@ class ImageService {
 
     // third stage: get tags, embeddings
     List<List<String>> tags =
-        await ApiService.fetchAzureTags(imageUrls, maxNumber: 5, caption: true, lang: "ko");
+        await ApiService.fetchAzureTags(imageUrls, maxNumber: 5, caption: false, lang: "ko");
 
     List<List<double>> embeddings =
         await ApiService.fetchImageEmbeddings(imageUrls);
@@ -100,7 +100,7 @@ class ImageService {
       localImages[i].generalTags = tags[i];
       localImages[i].vector = embeddings[i];
       // if we using azure caption
-      localImages[i].caption = tags[localImages.length][i];
+      // localImages[i].caption = tags[localImages.length][i];
     }
 
     // second UI update
@@ -111,33 +111,32 @@ class ImageService {
                 'imageUrl',
                 'generalTags',
                 'vector',
-                'caption'
               ])
                 key: e.toMap()[key]
+            })
+        .toList());
+    // localImageController.updateImages(localImages);
+    // if (searchImageController.initialized) {
+    //   searchImageController.updateImages(localImages);
+    // }
+
+    // 4th stage: get captions
+    List<String> captions = await ApiService.fetchGPTCaptions(thumbImageFiles);
+
+    for (int i = 0; i < localImages.length; i++) {
+      localImages[i].caption = captions[i];
+    }
+
+    // third UI update
+    await dbHelper.updateImagesByMaps(localImages
+        .map((e) => {
+              for (var key in ['assetPath', 'caption']) key: e.toMap()[key]
             })
         .toList());
     localImageController.updateImages(localImages);
     if (searchImageController.initialized) {
       searchImageController.updateImages(localImages);
     }
-
-    // 4th stage: get captions
-    // List<String> captions = await ApiService.fetchGPTCaptions(thumbImageFiles);
-
-    // for (int i = 0; i < localImages.length; i++) {
-    //   localImages[i].caption = captions[i];
-    // }
-
-    // // third UI update
-    // await dbHelper.updateImagesByMaps(localImages
-    //     .map((e) => {
-    //           for (var key in ['assetPath', 'caption']) key: e.toMap()[key]
-    //         })
-    //     .toList());
-    // localImageController.updateImages(localImages);
-    // if (searchImageController.initialized) {
-    //   searchImageController.updateImages(localImages);
-    // }
     Get.snackbar(
       '이미지 캡션 생성 완료', // 제목
       '총 ${localImages.length}개의 이미지 캡션 생성이 완료되었습니다.', // 메시지
@@ -150,7 +149,7 @@ class ImageService {
       snackStyle: SnackStyle.GROUNDED,
     );
 
-    // 4th stage: firestore
+    // 5th stage: firestore
     final firestoreIds = await FirestoreHelper.storeImages(localImages.map((e) => e.toMap()).toList());
 
     for (int i = 0; i < localImages.length; i++) {
@@ -159,6 +158,7 @@ class ImageService {
     await dbHelper.updateImagesByMaps(localImages
         .map((e) => {
               for (var key in [
+                'assetPath',
                 'firestoreId'
               ])
                 key: e.toMap()[key]

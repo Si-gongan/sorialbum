@@ -259,8 +259,8 @@ class _ImageDetailState extends State<ImageDetail> {
                     children: [
                       Icon(CupertinoIcons.sparkles,
                           size: 16, color: Colors.white),
-                      SizedBox(width: 6),
-                      Text('설명 생성하기', style: TextStyle(color: Colors.white)),
+                      SizedBox(width: 4),
+                      Text('자세한 설명 보기', style: TextStyle(color: Colors.white)),
                     ],
                   )),
               onTap: () async {

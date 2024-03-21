@@ -92,7 +92,7 @@ class Home extends GetView<LocalImagesController> {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(28), // FAB의 모서리 둥글기를 조정합니다.
               child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10), // 블러 효과 적용
+                filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6), // 블러 효과 적용
                 child: Container(
                   color: Colors.white.withOpacity(0.7), // 반투명한 흰색 배경
                   width: 56, // FAB 기본 크기와 동일
@@ -265,10 +265,10 @@ class Home extends GetView<LocalImagesController> {
 
   Widget _onboardingPageView() {
     return Container(
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+        padding: const EdgeInsets.all(24),
         color: CupertinoColors.white,
         alignment: Alignment.topLeft,
-        height: 600,
+        height: 700,
         width: double.infinity,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -278,51 +278,65 @@ class Home extends GetView<LocalImagesController> {
               child: GestureDetector(
                 child: const Text('닫기',
                     style: TextStyle(
-                        inherit: false, color: Colors.black, fontSize: 16)),
+                        inherit: false, color: Colors.black, fontSize: 16, decoration: TextDecoration.underline)),
                 onTap: () {
                   Get.back();
                 },
               ),
             ),
-            const SizedBox(height: 14),
-            const Text('소리앨범에 오신 것을 환영합니다!',
-                style: TextStyle(
-                    inherit: false,
-                    color: Colors.black,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600)),
-            const SizedBox(height: 14),
+            const SizedBox(height: 24),
+            Semantics(
+              container: true,
+              child: const Row(children: [
+                Text('소리앨범', style: TextStyle(inherit: false, color: Color.fromRGBO(162, 189, 242, 1), fontSize: 18, fontWeight: FontWeight.bold)),
+                Text(', 이렇게 사용해 보세요!', style: TextStyle(inherit: false, color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold))
+              ]),
+            ),
+            const SizedBox(height: 24),
+            const Text('1. 사진 추가', style: TextStyle(
+                    inherit: false, color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold)),
             const Text(
-                '1. 상단의 카메라와 갤러리 버튼을 눌러 소리앨범에 사진을 추가해보세요. 앨범에 추가된 사진은 자동으로 짧은 캡션이 생성됩니다.',
+                "앱 최상단 왼쪽부터 카메라, 갤러리 버튼을 눌러 사진을 추가해 보세요. 자동으로 사진에 대한 짧은 설명인 '캡션'이 생성됩니다.",
+                style: TextStyle(
+                    inherit: false, color: Colors.black, fontSize: 16)),
+            const SizedBox(height: 18),
+            const Text('2. 자세한 설명 받기', style: TextStyle(
+                    inherit: false, color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold)),
+            const Text(
+                "사진의 상세페이지로 들어가 '자세한 설명 보기' 버튼을 눌러 보세요. AI가 사진에 대한 꼼꼼한 설명과, 사진 속 글자를 인식해 알려줄 거예요. 자세한 설명은 하루에 10회만 생성할 수 있어요.",
+                style: TextStyle(
+                    inherit: false, color: Colors.black, fontSize: 16)),
+            const SizedBox(height: 18),
+            const Text('3. 사진 검색', style: TextStyle(
+                    inherit: false, color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold)),
+            const Text(
+                '앱 최상단 오른쪽 검색 버튼을 눌러 추가한 사진을 검색해 보세요. 찾고 싶은 사진과 관련한 짧은 키워드 또는 사진에 대한 간단한 묘사를 통해 검색하실 수 있습니다.',
                 style: TextStyle(
                     inherit: false, color: Colors.black, fontSize: 16)),
             const SizedBox(height: 10),
             const Text(
-                '2. 사진의 자세한 정보를 얻고 싶다면 AI를 통해 글자를 인식하고 자세한 설명을 생성해보세요.\n자세한 설명 생성 횟수는 하루 10회로 제한됩니다.',
+                '키워드 탭은 검색한 키워드가 포함된 사진들이, 유사도 탭은 검색한 내용과 비슷한 순서로 정렬된 사진들이 노출됩니다.',
+                style: TextStyle(
+                    inherit: false, color: Colors.black, fontSize: 16)),
+            const SizedBox(height: 18),
+            const Text('4. 사진 공유', style: TextStyle(
+                    inherit: false, color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold)),
+            const Text(
+                '사진의 상세페이지로 들어가 오른쪽 상단 공유하기 버튼을 눌러보세요. 사진과 캡션을 다른 사람에게 공유할 수 있습니다.',
                 style: TextStyle(
                     inherit: false, color: Colors.black, fontSize: 16)),
             const SizedBox(height: 10),
             const Text(
-                '3. 원하는 사진을 찾고 싶다면 상단의 검색 버튼을 눌러 찾고 싶은 키워드, 혹은 사진에 대해 간단한 묘사를 입력해보세요.\n검색한 키워드 정보가 포함된 사진들과, 유사도가 높은 순으로 정렬된 사진들을 확인할 수 있습니다.',
+                '앱을 삭제하실 경우, 추가한 사진과 관련한 데이터도 함께 삭제되니 이용에 유의해 주세요.',
                 style: TextStyle(
                     inherit: false, color: Colors.black, fontSize: 16)),
-            const SizedBox(height: 10),
-            const Text(
-                '4. 이미지 상세 화면의 우측 상단 공유하기 버튼을 통해 사진과 캡션을 다른사람과 쉽게 공유해보세요.',
-                style: TextStyle(
-                    inherit: false, color: Colors.black, fontSize: 16)),
-            const SizedBox(height: 10),
-            const Text(
-                '5. 모든 사진은 외부에 업로드되지 않고 앱 데이터 내부에만 저장되며, 앱을 삭제하실 경우 저장된 데이터도 초기화되므로 이용에 유의해주시기 바랍니다.',
-                style: TextStyle(
-                    inherit: false, color: Colors.black, fontSize: 16)),
-            const SizedBox(height: 16),
+            const SizedBox(height: 24),
             Semantics(
               button: true,
               child: GestureDetector(
                 child: const Text('확인',
                     style: TextStyle(
-                        inherit: false, color: Colors.black, fontSize: 16)),
+                        inherit: false, color: Colors.black, fontSize: 16, decoration: TextDecoration.underline)),
                 onTap: () {
                   Get.back();
                 },
