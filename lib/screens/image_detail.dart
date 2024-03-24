@@ -33,7 +33,8 @@ class _ImageDetailState extends State<ImageDetail> {
       controller = Get.find<LocalImagesController>();
     }
 
-    return Obx(() => Scaffold(
+    return Obx(() => controller.images.length == 0 ? Container() : 
+      Scaffold(
         appBar: AppBar(
             centerTitle: true,
             title: SizedBox(
@@ -113,6 +114,9 @@ class _ImageDetailState extends State<ImageDetail> {
                                             isDestructiveAction: true,
                                             child: const Text('삭제'),
                                             onPressed: () {
+                                              if (controller.images.length == 1){
+                                                Get.back();
+                                              }
                                               ImageService.removeImage(
                                                   controller.images![
                                                       controller.index]);

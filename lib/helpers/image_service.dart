@@ -23,15 +23,17 @@ final storageRef = FirebaseStorage.instance.ref();
 
 class ImageService {
   static final LocalImagesController localImageController = Get.find<LocalImagesController>();
-  static final SearchImagesController searchImageController = _findOrCreateSearchImageController();
+  static SearchImagesController? searchImagesController;
 
-  static SearchImagesController _findOrCreateSearchImageController() {
+  static bool _findSearchImageController() {
     try {
       // Get.find()를 시도하여 이미 등록된 인스턴스가 있는지 확인
-      return Get.find<SearchImagesController>();
+      searchImagesController = Get.find<SearchImagesController>();
+      return true;
     } catch (e) {
-      // 등록된 인스턴스가 없을 경우, 새로운 인스턴스를 생성하고 주입
-      return Get.put(SearchImagesController());
+      // 등록된 인스턴스가 아직 없음
+      print('none!');
+      return false;
     }
   }
 
@@ -116,9 +118,9 @@ class ImageService {
             })
         .toList());
     // localImageController.updateImages(localImages);
-    // if (searchImageController.initialized) {
-    //   searchImageController.updateImages(localImages);
-    // }
+    if(_findSearchImageController()) {
+      searchImagesController!.updateImages(localImages);
+    }
 
     // 4th stage: get captions
     List<String> captions = await ApiService.fetchGPTCaptions(thumbImageFiles);
@@ -134,8 +136,8 @@ class ImageService {
             })
         .toList());
     localImageController.updateImages(localImages);
-    if (searchImageController.initialized) {
-      searchImageController.updateImages(localImages);
+    if(_findSearchImageController()) {
+      searchImagesController!.updateImages(localImages);
     }
     Get.snackbar(
       '이미지 캡션 생성 완료', // 제목
@@ -169,8 +171,8 @@ class ImageService {
   static Future<void> getDescription(LocalImage image) async {
     image.description = '설명을 생성중이에요...';
     localImageController.updateImage(image);
-    if (searchImageController.initialized) {
-      searchImageController.updateImage(image);
+    if(_findSearchImageController()) {
+      searchImagesController!.updateImage(image);
     }
 
     File imageFile = File(image.getPath());
@@ -181,8 +183,8 @@ class ImageService {
       for (var key in ['assetPath', 'description']) key: image.toMap()[key]
     });
     localImageController.updateImage(image);
-    if (searchImageController.initialized) {
-      searchImageController.updateImage(image);
+    if(_findSearchImageController()) {
+      searchImagesController!.updateImage(image);
     }
     Get.snackbar(
       '이미지 설명 생성 완료', // 제목
@@ -200,8 +202,8 @@ class ImageService {
   static Future<void> getOCR(LocalImage image) async {
     image.ocr = '글자를 인식중이에요...';
     localImageController.updateImage(image);
-    if (searchImageController.initialized) {
-      searchImageController.updateImage(image);
+    if(_findSearchImageController()) {
+      searchImagesController!.updateImage(image);
     }
 
     File imageFile = File(image.getPath());
@@ -212,8 +214,8 @@ class ImageService {
       for (var key in ['assetPath', 'ocr']) key: image.toMap()[key]
     });
     localImageController.updateImage(image);
-    if (searchImageController.initialized) {
-      searchImageController.updateImage(image);
+    if(_findSearchImageController()) {
+      searchImagesController!.updateImage(image);
     }
     Get.snackbar(
       '이미지 글자 인식 완료', // 제목
@@ -230,7 +232,9 @@ class ImageService {
 
   static Future<void> removeImage(LocalImage image) async {
     localImageController.removeImage(image);
-    searchImageController.removeImage(image);
+    if(_findSearchImageController()) {
+      searchImagesController!.removeImage(image);
+    }
     await dbHelper.deleteImage(image);
   }
 }

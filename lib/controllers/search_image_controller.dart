@@ -6,8 +6,10 @@ import '../helpers/api_service.dart';
 import '../helpers/utils.dart';
 
 class SearchImagesController extends GetxController {
-  final Rxn<List<LocalImage>> _sortedImages = Rxn<List<LocalImage>>([]);
-  final Rxn<List<LocalImage>> _filteredImages = Rxn<List<LocalImage>>([]);
+  final Rxn<List<LocalImage>> _images = Rxn<List<LocalImage>>([]);
+  List<LocalImage> _sortedImages = [];
+  List<LocalImage> _filteredImages = [];
+
   final Rxn<List<String>> _queries = Rxn<List<String>>([]);
 
   // index of current viewing image
@@ -19,8 +21,7 @@ class SearchImagesController extends GetxController {
   // searching state
   final Rx _state = 'initial'.obs; // 'initial', 'loading', 'displayed'
 
-  List<LocalImage>? get images =>
-      _type.value == 'sorted' ? _sortedImages.value : _filteredImages.value;
+  List<LocalImage>? get images => _images.value;
   List<String>? get queries => _queries.value;
   int get index => _index.value;
   String get type => _type.value;
@@ -40,6 +41,11 @@ class SearchImagesController extends GetxController {
     // 페이지를 벗어날 때 호출됩니다. 검색 결과를 초기화합니다.
     clearSearchImages();
     super.onClose();
+  }
+
+  void setImages() {
+    _images.value = _type.value == 'sorted' ? _sortedImages : _filteredImages;
+    _images.refresh();
   }
 
   void queryImages(String query) async {
@@ -70,10 +76,10 @@ class SearchImagesController extends GetxController {
       List<LocalImage> filteredImages =
           await dbHelper.searchImagesByKeyword(query);
 
-      _sortedImages.value = sortedImages;
-      _filteredImages.value = filteredImages;
-      _sortedImages.refresh();
-      _filteredImages.refresh();
+      _sortedImages = sortedImages;
+      _filteredImages = filteredImages;
+      setImages();
+      
       setState('displayed');
     }
   }
@@ -98,6 +104,7 @@ class SearchImagesController extends GetxController {
   void setType(String type) {
     _type.value = type;
     _type.refresh();
+    setImages();
   }
 
   void setState(String state) {
@@ -110,54 +117,55 @@ class SearchImagesController extends GetxController {
   }
 
   void clearSearchImages() {
-    _sortedImages.value?.clear();
-    _filteredImages.value?.clear();
-    _sortedImages.refresh();
-    _filteredImages.refresh();
+    _images.value?.clear();
+    _images.refresh();
   }
 
   void updateImage(LocalImage updatedImage) {
-    int sIndex = _sortedImages.value!
+    print(updatedImage);
+    int sIndex = _sortedImages
         .indexWhere((image) => image.assetPath == updatedImage.assetPath);
     if (sIndex != -1) {
-      _sortedImages.value![sIndex] = updatedImage;
-      _sortedImages.refresh();
+      _sortedImages[sIndex] = updatedImage;
     }
+    print(sIndex);
 
-    int fIndex = _filteredImages.value!
+    int fIndex = _filteredImages
         .indexWhere((image) => image.assetPath == updatedImage.assetPath);
     if (fIndex != -1) {
-      _filteredImages.value![fIndex] = updatedImage;
-      _filteredImages.refresh();
+      _filteredImages[fIndex] = updatedImage;
     }
+    setImages();
   }
 
   void updateImages(List<LocalImage> updatedImages) {
     for (LocalImage updatedImage in updatedImages) {
-      int sIndex = _sortedImages.value!
+      int sIndex = _sortedImages
           .indexWhere((image) => image.assetPath == updatedImage.assetPath);
       if (sIndex != -1) {
-        _sortedImages.value![sIndex] = updatedImage;
+        _sortedImages[sIndex] = updatedImage;
       }
-      int fIndex = _filteredImages.value!
+      int fIndex = _filteredImages
           .indexWhere((image) => image.assetPath == updatedImage.assetPath);
       if (fIndex != -1) {
-        _filteredImages.value![fIndex] = updatedImage;
+        _filteredImages[fIndex] = updatedImage;
       }
     }
-    _filteredImages.refresh();
-    _sortedImages.refresh();
+    setImages();
   }
 
   void removeImage(LocalImage targetImage) {
-    _sortedImages.value!
+    _sortedImages
         .removeWhere((image) => image.assetPath == targetImage.assetPath);
-    _filteredImages.value!
+    _filteredImages
         .removeWhere((image) => image.assetPath == targetImage.assetPath);
-    if (_index.value == (_type.value == 'sorted' ? _sortedImages.value!.length : _filteredImages.value!.length)) {
-      _index.value = (_type.value == 'sorted' ? _sortedImages.value!.length : _filteredImages.value!.length)-1;
+    print(_index.value);
+    print(_sortedImages.length);
+    print(_filteredImages.length);
+    print(_type.value);
+    if (_index.value == (_type.value == 'sorted' ? _sortedImages.length : _filteredImages.length)) {
+      _index.value = _index.value - 1;
     }
-    _sortedImages.refresh();
-    _filteredImages.refresh();
+    setImages();
   }
 }

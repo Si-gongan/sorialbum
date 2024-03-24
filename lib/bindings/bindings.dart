@@ -20,7 +20,18 @@ class LocalImagesBinding implements Bindings {
 class SearchImagesBinding implements Bindings {
   @override
   void dependencies() {
-    Get.put(SearchImagesController());
+    // if (!Get.isRegistered<SearchImagesController>()) {
+    //   print('put!');
+    //   Get.put(SearchImagesController());
+    // }
+    try {
+      // Get.find()를 시도하여 이미 등록된 인스턴스가 있는지 확인
+      Get.find<SearchImagesController>();
+    } catch (e) {
+      // 등록된 인스턴스가 없을 경우, 새로운 인스턴스를 생성하고 주입
+      print('put!');
+      Get.put(SearchImagesController());
+    }
   }
 }
 
@@ -28,6 +39,9 @@ class AllImagesBinding implements Bindings {
   @override
   void dependencies() {
     Get.put(LocalImagesController());
-    Get.put(SearchImagesController());
+    if (!Get.isRegistered<SearchImagesController>()) {
+      print('put!');
+      Get.put(SearchImagesController());
+    }
   }
 }

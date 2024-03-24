@@ -35,7 +35,7 @@ class Home extends GetView<LocalImagesController> {
           title:
               Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
             IconButton(
-              tooltip: '사진 촬영하기',
+              tooltip: '카메라',
               icon: const Icon(
                 CupertinoIcons.camera_fill,
                 color: Colors.black54,
@@ -51,7 +51,7 @@ class Home extends GetView<LocalImagesController> {
               },
             ),
             IconButton(
-              tooltip: '갤러리에서 불러오기',
+              tooltip: '업로드',
               icon: const Icon(CupertinoIcons.photo,
                   color: Colors.black54, size: 30),
               onPressed: () async {
@@ -64,7 +64,7 @@ class Home extends GetView<LocalImagesController> {
               },
             ),
             IconButton(
-              tooltip: '사진 검색하기',
+              tooltip: '검색',
               icon: const Icon(CupertinoIcons.search,
                   color: Colors.black54, size: 30),
               onPressed: () {
@@ -121,7 +121,7 @@ class Home extends GetView<LocalImagesController> {
         ),
         body: Obx(() {
           if (controller.images == null || controller.images!.isEmpty) {
-            return const Center(child: Text('소리앨범에 사진을 추가해보세요!'));
+            return const Center(child: Text('소리앨범에 사진을 추가해 보세요!'));
           } else {
             var groupedImages =
                 controller.groupImagesByMonthAndDate(controller.images!);
@@ -296,7 +296,7 @@ class Home extends GetView<LocalImagesController> {
             const Text('1. 사진 추가', style: TextStyle(
                     inherit: false, color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold)),
             const Text(
-                "앱 최상단 왼쪽부터 카메라, 갤러리 버튼을 눌러 사진을 추가해 보세요. 자동으로 사진에 대한 짧은 설명인 '캡션'이 생성됩니다.",
+                "앱 최상단 왼쪽부터 카메라, 업로드 버튼을 눌러 사진을 추가해 보세요. 자동으로 사진에 대한 짧은 설명인 '캡션'이 생성됩니다.",
                 style: TextStyle(
                     inherit: false, color: Colors.black, fontSize: 16)),
             const SizedBox(height: 18),
