@@ -8,11 +8,14 @@ import '../controllers/local_images_controller.dart';
 import 'dart:io';
 import 'dart:ui';
 import 'package:intl/intl.dart';
+import 'package:in_app_review/in_app_review.dart';
 
 class Home extends GetView<LocalImagesController> {
   Home({super.key});
 
   final ScrollController _scrollController = ScrollController();
+  final InAppReview inAppReview = InAppReview.instance;
+  
 
   @override
   Widget build(BuildContext context) {
@@ -101,6 +104,7 @@ class Home extends GetView<LocalImagesController> {
                     type: MaterialType.transparency,
                     child: InkWell(
                       onTap: () {
+                        // inAppReview.openStoreListing(appStoreId: '6478280385');
                         showCupertinoModalPopup(
                           context: context,
                           builder: (BuildContext context) {
@@ -274,16 +278,32 @@ class Home extends GetView<LocalImagesController> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Semantics(
-                button: true,
-                child: GestureDetector(
-                  child: const Text('닫기',
-                      style: TextStyle(
-                          inherit: false, color: Colors.black, fontSize: 16, decoration: TextDecoration.underline)),
-                  onTap: () {
-                    Get.back();
-                  },
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Semantics(
+                    button: true,
+                    child: GestureDetector(
+                      child: const Text('닫기',
+                          style: TextStyle(
+                              inherit: false, color: Colors.black, fontSize: 16, decoration: TextDecoration.underline)),
+                      onTap: () {
+                        Get.back();
+                      },
+                    ),
+                  ),
+                  Semantics(
+                    button: true,
+                    child: GestureDetector(
+                      child: const Text('리뷰 남기기',
+                          style: TextStyle(
+                              inherit: false, color: Colors.black, fontSize: 16, decoration: TextDecoration.underline)),
+                      onTap: () {
+                        inAppReview.openStoreListing(appStoreId: '6478280385');
+                      },
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 24),
               Semantics(

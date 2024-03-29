@@ -130,22 +130,5 @@ class FirestoreHelper {
   }
 
   // TODO: 이용권 로직 서버 연동
-
-  // // 하루에 사용 가능한 티켓 수 검사 (하루 10개 제한)
-  // Future<bool> canUseTicket(String userId) async {
-  //   try {
-  //     var userDoc = await _firestore.collection('User').doc(userId).get();
-  //     var tickets = userDoc.data()?['tickets'] ?? [];
-  //     int todayTicketCount = tickets.where((ticket) {
-  //       DateTime createdAt = (ticket['createdAt'] as Timestamp).toDate();
-  //       return createdAt.day == DateTime.now().day &&
-  //           createdAt.month == DateTime.now().month &&
-  //           createdAt.year == DateTime.now().year;
-  //     }).length;
-  //     return todayTicketCount < 10;
-  //   } catch (e) {
-  //     print(e.toString());
-  //     return false;
-  //   }
-  // }
+  
 }

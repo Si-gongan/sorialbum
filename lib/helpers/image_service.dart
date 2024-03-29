@@ -15,10 +15,12 @@ import 'api_service.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'firestore_helper.dart';
 import '../app_config.dart';
+import 'package:in_app_review/in_app_review.dart';
 
 final ImagePicker _picker = ImagePicker();
 final dbHelper = DatabaseHelper();
 final storageRef = FirebaseStorage.instance.ref();
+final InAppReview inAppReview = InAppReview.instance;
 
 
 class ImageService {
@@ -166,6 +168,10 @@ class ImageService {
                 key: e.toMap()[key]
             })
         .toList());
+
+    if (await inAppReview.isAvailable()) {
+      inAppReview.requestReview();
+    }
   }
 
   static Future<void> getDescription(LocalImage image) async {
@@ -197,6 +203,10 @@ class ImageService {
       duration: const Duration(seconds: 3), // 지속 시간 설정
       snackStyle: SnackStyle.GROUNDED,
     );
+
+    if (await inAppReview.isAvailable()) {
+      inAppReview.requestReview();
+    }
   }
 
   static Future<void> getOCR(LocalImage image) async {
