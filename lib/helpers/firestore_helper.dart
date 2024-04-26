@@ -129,6 +129,17 @@ class FirestoreHelper {
     }
   }
 
-  // TODO: 이용권 로직 서버 연동
+  // 인터뷰이 연락처 정보 저장
+  static Future<void> saveIntervieweeContact(String contact) async {
+    String uid = await _getOrCreateUID();
+
+    try {
+      await _firestore.collection('User').doc(uid).update({
+        'intervieweeContact': contact,
+      });
+    } catch (e) {
+      print(e.toString());
+    }
+  }
   
 }
