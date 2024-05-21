@@ -28,7 +28,7 @@ class Home extends GetView<LocalImagesController> {
         showCupertinoModalPopup(
           context: context,
           builder: (BuildContext context) {
-            return CupertinoPopupSurface(child: OnboardingBottomSheet());
+            return const CupertinoPopupSurface(child: OnboardingBottomSheet());
           },
         );
       }

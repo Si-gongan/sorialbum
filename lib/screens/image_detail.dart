@@ -268,14 +268,19 @@ class _ImageDetailState extends State<ImageDetail> {
                     ],
                   )),
               onTap: () async {
+                if (TicketManager.currentTickets > 1) {
+                  TicketManager.useTicket();
+                  await ImageService.getDescription(image);
+                  return;
+                } 
                 showCupertinoDialog(
                     context: context,
                     builder: (context) => CupertinoAlertDialog(
                           title: const Text('알림'),
-                          content: Text(TicketManager.currentTickets != 0
-                              ? '이용권을 소비하여 설명을 생성합니다.\n(남은 일일 이용권: ${TicketManager.currentTickets}개)'
+                          content: Text(TicketManager.currentTickets == 1
+                              ? '오늘의 마지막 이용권을 사용하시겠어요? \n내일이 되면 다시 이용권 10개를 받을 수 있어요.'
                               : '이용권을 모두 소진하였습니다.\n내일이 되면 이용권 10개를 받을 수 있어요.'),
-                          actions: TicketManager.currentTickets != 0
+                          actions: TicketManager.currentTickets == 1
                               ? <Widget>[
                                   // 다이얼로그 닫기 버튼
                                   CupertinoDialogAction(
