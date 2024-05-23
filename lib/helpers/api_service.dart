@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:io';
 
 // 이미지 캡션을 가져오는 API의 URL
-const String aiServerHost = 'http://54.87.223.235:8000';
+const String aiServerHost = 'https://ai.sigongan-ai.shop/sorialbum';
 
 class ApiService {
   static Future<String> fetchImageDescription(File imageFile) async {
@@ -15,7 +15,11 @@ class ApiService {
               headers: {
                 'Content-Type': 'application/json',
               },
-              body: jsonEncode({'url': base64Image}));
+              body: jsonEncode({
+                'image': base64Image,
+                'model': 'gpt',
+                'max_line': 4
+                }));
       if (response.statusCode == 200) {
         final String decodedResponse = utf8.decode(response.bodyBytes);
         final responseData = jsonDecode(decodedResponse);
@@ -80,7 +84,7 @@ class ApiService {
           "Content-Type": "application/json",
         },
         body: jsonEncode({
-          'strings': base64Images,
+          'images': base64Images,
         }),
       );
 
@@ -105,7 +109,7 @@ class ApiService {
     }
   }
 
-  static Future<List<String>> fetchGPTCaptions(List<File> imageFiles) async {
+  static Future<List<String>> fetchImageCaptions(List<File> imageFiles) async {
     try {
       // 모든 이미지 파일을 Base64 인코딩하고 리스트로 묶기
       final base64Images = await Future.wait(imageFiles.map((file) async {
@@ -121,7 +125,8 @@ class ApiService {
           "Content-Type": "application/json",
         },
         body: jsonEncode({
-          'urls': base64Images, // 이미지 리스트를 전송하는 키를 'urls'로 변경
+          'images': base64Images,
+          'model': 'gemini'
         }),
       );
 
@@ -156,7 +161,7 @@ class ApiService {
           "Content-Type": "application/json",
         },
         body: jsonEncode({
-          'urls': imageUrls,
+          'images': imageUrls,
           'model': 'azure',
           'caption': caption,
           'max_number': maxNumber,
@@ -197,8 +202,7 @@ class ApiService {
     }
   }
 
-  static Future<List<List<double>>> fetchImageEmbeddings(
-      List<String> imageUrls) async {
+  static Future<List<List<double>>> fetchImageEmbeddings(List<String> imageUrls) async {
     try {
       // HTTP POST 요청으로 모든 이미지 데이터를 한 번에 전송
       final response = await http.post(
@@ -207,7 +211,7 @@ class ApiService {
           "Content-Type": "application/json",
         },
         body: jsonEncode({
-          'urls': imageUrls, // 이미지 리스트를 전송하는 키를 'urls'로 변경
+          'images': imageUrls, // 이미지 리스트를 전송하는 키를 'urls'로 변경
         }),
       );
 
@@ -236,47 +240,6 @@ class ApiService {
     } catch (e) {
       print(e);
       return []; // 오류 발생 시 빈 리스트 반환
-    }
-  }
-
-  static Future<List<String>> fetchImageUrls(List<File> imageFiles) async {
-    try {
-      // 모든 이미지 파일을 Base64 인코딩하고 리스트로 묶기
-      final base64Images = await Future.wait(imageFiles.map((file) async {
-        final bytes = await file.readAsBytes();
-        final base64Image = base64Encode(bytes);
-        return base64Image;
-      }));
-
-      // HTTP POST 요청으로 모든 이미지 데이터를 한 번에 전송
-      final response = await http.post(
-        Uri.parse('$aiServerHost/image-urls'),
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: jsonEncode({
-          'strings': base64Images, // 이미지 리스트를 전송하는 키를 'urls'로 변경
-        }),
-      );
-
-      // 응답으로 받은 모든 이미지 캡션을 파싱하여 반환
-      if (response.statusCode == 200) {
-        final String decodedResponse = utf8.decode(response.bodyBytes);
-        final responseData = jsonDecode(decodedResponse);
-
-        if (responseData is Map<String, dynamic> &&
-            responseData.containsKey('urls')) {
-          List<String> imageUrls = List<String>.from(responseData['urls']);
-          return imageUrls;
-        } else {
-          throw Exception('Invalid response format');
-        }
-      } else {
-        throw Exception('Failed to load image urls');
-      }
-    } catch (e) {
-      print(e);
-      return [];
     }
   }
 }

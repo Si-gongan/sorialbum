@@ -79,14 +79,14 @@ class _OnboardingBottomSheetState extends State<OnboardingBottomSheet> {
               const Text('3. 사진 검색', style: TextStyle(
                       inherit: false, color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold)),
               const Text(
-                  '앱 최상단 오른쪽 검색 버튼을 눌러 추가한 사진을 검색해 보세요. 찾고 싶은 사진과 관련한 짧은 키워드 또는 사진에 대한 간단한 묘사를 통해 검색하실 수 있습니다.',
+                  '앱 최상단 오른쪽 검색 버튼을 눌러 추가한 사진을 검색해 보세요. 입력한 키워드가 포함된 사진만을 골라 볼 수 있어요.',
                   style: TextStyle(
                       inherit: false, color: Colors.black, fontSize: 16)),
-              const SizedBox(height: 10),
-              const Text(
-                  '키워드 탭은 검색한 키워드가 포함된 사진들이, 유사도 탭은 검색한 내용과 비슷한 순서로 정렬된 사진들이 노출됩니다.',
-                  style: TextStyle(
-                      inherit: false, color: Colors.black, fontSize: 16)),
+              // const SizedBox(height: 10),
+              // const Text(
+              //     '키워드 탭은 검색한 키워드가 포함된 사진들이, 유사도 탭은 검색한 내용과 비슷한 순서로 정렬된 사진들이 노출됩니다.',
+              //     style: TextStyle(
+              //         inherit: false, color: Colors.black, fontSize: 16)),
               const SizedBox(height: 18),
               const Text('4. 사진 공유', style: TextStyle(
                       inherit: false, color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold)),

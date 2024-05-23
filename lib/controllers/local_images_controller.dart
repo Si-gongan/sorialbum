@@ -29,6 +29,8 @@ class LocalImagesController extends GetxController {
 
   void setCurrentIndex(int index) {
     _index.value = index;
+    _index.refresh();
+    _images.refresh();
   }
 
   void addImage(LocalImage image) {

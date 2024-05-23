@@ -120,21 +120,22 @@ class Search extends GetView<SearchImagesController> {
             );
           } else {
             return Column(children: [
-              Container(
-                margin: const EdgeInsets.fromLTRB(0, 10, 0, 15),
-                child: CupertinoSlidingSegmentedControl(
-                  groupValue: controller.type,
-                  onValueChanged: ((String? value) {
-                    if (value != null) {
-                      controller.setType(value);
-                    }
-                  }),
-                  children: const <String, Widget>{
-                    'filtered': Text('키워드 포함'),
-                    'sorted': Text('유사도 순'),
-                  },
-                ),
-              ),
+              // 2024. 05. 22. 유사도 기반 서칭 제외
+              // Container(
+              //   margin: const EdgeInsets.fromLTRB(0, 10, 0, 15),
+              //   child: CupertinoSlidingSegmentedControl(
+              //     groupValue: controller.type,
+              //     onValueChanged: ((String? value) {
+              //       if (value != null) {
+              //         controller.setType(value);
+              //       }
+              //     }),
+              //     children: const <String, Widget>{
+              //       'filtered': Text('키워드 포함'),
+              //       'sorted': Text('유사도 순'),
+              //     },
+              //   ),
+              // ),
               controller.images == null || controller.images!.isEmpty
                   ? const Center(child: Text('검색 결과가 없습니다'))
                   : Expanded(

@@ -2,8 +2,8 @@ import 'package:get/get.dart';
 import '../models/image.dart';
 import '../helpers/db_helper.dart';
 import '../helpers/storage_helper.dart';
-import '../helpers/api_service.dart';
-import '../helpers/utils.dart';
+// import '../helpers/api_service.dart';
+// import '../helpers/utils.dart';
 
 class SearchImagesController extends GetxController {
   final Rxn<List<LocalImage>> _images = Rxn<List<LocalImage>>([]);
@@ -57,26 +57,30 @@ class SearchImagesController extends GetxController {
     } else {
       addSearchHistory(query);
 
+      /////////////////////////////////////
+      //   2024.05.22. 유사도 기반 서칭 제외  //
+      /////////////////////////////////////
+  
       // 유사도 기반 정렬
-      List<LocalImage> allImages = await dbHelper.getAllImages();
-      List<double> queryVec = await ApiService.fetchTextEmbedding(query);
-      final similarityScores = allImages.map((image) {
-        final imageVec = image.vector;
-        return {
-          'image': image,
-          'similarity': cosineSimilarity(queryVec, imageVec),
-        };
-      }).toList();
-      similarityScores.sort((a, b) =>
-          (b['similarity'] as double).compareTo(a['similarity'] as double));
-      final sortedImages =
-          similarityScores.map((e) => e['image'] as LocalImage).toList();
+      // List<LocalImage> allImages = await dbHelper.getAllImages();
+      // List<double> queryVec = await ApiService.fetchTextEmbedding(query);
+      // final similarityScores = allImages.map((image) {
+      //   final imageVec = image.vector;
+      //   return {
+      //     'image': image,
+      //     'similarity': cosineSimilarity(queryVec, imageVec),
+      //   };
+      // }).toList();
+      // similarityScores.sort((a, b) =>
+      //     (b['similarity'] as double).compareTo(a['similarity'] as double));
+      // final sortedImages =
+      //     similarityScores.map((e) => e['image'] as LocalImage).toList();
 
       // 키워드 필터링
       List<LocalImage> filteredImages =
           await dbHelper.searchImagesByKeyword(query);
 
-      _sortedImages = sortedImages;
+      // _sortedImages = sortedImages;
       _filteredImages = filteredImages;
       setImages();
       
@@ -122,13 +126,11 @@ class SearchImagesController extends GetxController {
   }
 
   void updateImage(LocalImage updatedImage) {
-    print(updatedImage);
-    int sIndex = _sortedImages
-        .indexWhere((image) => image.assetPath == updatedImage.assetPath);
-    if (sIndex != -1) {
-      _sortedImages[sIndex] = updatedImage;
-    }
-    print(sIndex);
+    // int sIndex = _sortedImages
+    //     .indexWhere((image) => image.assetPath == updatedImage.assetPath);
+    // if (sIndex != -1) {
+    //   _sortedImages[sIndex] = updatedImage;
+    // }
 
     int fIndex = _filteredImages
         .indexWhere((image) => image.assetPath == updatedImage.assetPath);
@@ -140,11 +142,11 @@ class SearchImagesController extends GetxController {
 
   void updateImages(List<LocalImage> updatedImages) {
     for (LocalImage updatedImage in updatedImages) {
-      int sIndex = _sortedImages
-          .indexWhere((image) => image.assetPath == updatedImage.assetPath);
-      if (sIndex != -1) {
-        _sortedImages[sIndex] = updatedImage;
-      }
+      // int sIndex = _sortedImages
+      //     .indexWhere((image) => image.assetPath == updatedImage.assetPath);
+      // if (sIndex != -1) {
+      //   _sortedImages[sIndex] = updatedImage;
+      // }
       int fIndex = _filteredImages
           .indexWhere((image) => image.assetPath == updatedImage.assetPath);
       if (fIndex != -1) {
@@ -155,14 +157,10 @@ class SearchImagesController extends GetxController {
   }
 
   void removeImage(LocalImage targetImage) {
-    _sortedImages
-        .removeWhere((image) => image.assetPath == targetImage.assetPath);
+    // _sortedImages
+    //     .removeWhere((image) => image.assetPath == targetImage.assetPath);
     _filteredImages
         .removeWhere((image) => image.assetPath == targetImage.assetPath);
-    print(_index.value);
-    print(_sortedImages.length);
-    print(_filteredImages.length);
-    print(_type.value);
     if (_index.value == (_type.value == 'sorted' ? _sortedImages.length : _filteredImages.length)) {
       _index.value = _index.value - 1;
     }

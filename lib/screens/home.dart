@@ -10,7 +10,6 @@ import '../components/onboarding_bottom_sheet.dart';
 import 'dart:io';
 import 'dart:ui';
 import 'package:intl/intl.dart';
-import 'package:in_app_review/in_app_review.dart';
 
 class Home extends GetView<LocalImagesController> {
   Home({super.key});
@@ -116,11 +115,10 @@ class Home extends GetView<LocalImagesController> {
                     type: MaterialType.transparency,
                     child: InkWell(
                       onTap: () {
-                        // inAppReview.openStoreListing(appStoreId: '6478280385');
                         showCupertinoModalPopup(
                           context: context,
                           builder: (BuildContext context) {
-                            return CupertinoPopupSurface(
+                            return const CupertinoPopupSurface(
                                 child: OnboardingBottomSheet());
                           },
                         );

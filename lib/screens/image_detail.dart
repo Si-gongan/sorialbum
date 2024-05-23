@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 import '../controllers/local_images_controller.dart';
 import '../controllers/search_image_controller.dart';
@@ -10,6 +11,8 @@ import '../helpers/firestore_helper.dart';
 import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:flutter/services.dart';
+import 'dart:ui' as ui;
 
 enum Annotation { description, ocr }
 
@@ -22,6 +25,9 @@ class ImageDetail extends StatefulWidget {
 
 class _ImageDetailState extends State<ImageDetail> {
   Annotation _selectedSegment = Annotation.description;
+  // set live region state for screen reader
+  String _liveRegion = 'caption';
+
 
   @override
   Widget build(BuildContext context) {
@@ -33,25 +39,56 @@ class _ImageDetailState extends State<ImageDetail> {
       controller = Get.find<LocalImagesController>();
     }
 
+    final pageController = PageController(
+                      viewportFraction: 1, initialPage: controller.index);
+
+    void handleScrollLeft(String liveRegion){
+      if (controller.index == controller.images!.length - 1) {
+        return;
+      }
+      setState(() {
+        _liveRegion = liveRegion;
+      });
+      controller.setCurrentIndex(controller.index + 1);
+      pageController.jumpToPage(controller.index);
+    }
+
+    void handleScrollRight(String liveRegion){
+      if (controller.index == 0) {
+        return;
+      }
+      setState(() {
+        _liveRegion = liveRegion;
+      });
+      controller.setCurrentIndex(controller.index - 1);
+      pageController.jumpToPage(controller.index);
+    }
+
+
     return Obx(() => controller.images.length == 0 ? Container() : 
       Scaffold(
         appBar: AppBar(
             centerTitle: true,
-            title: SizedBox(
-              width: 200,
-              child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      DateFormat('yyyy년 M월 d일', 'ko_KR').format(
-                          controller.images![controller.index].createdAt),
-                      style: const TextStyle(fontSize: 18),
-                    ),
-                    Text(
-                        DateFormat('a h시 m분', 'ko_KR').format(
+            title: Semantics(
+              liveRegion: _liveRegion == 'date',
+              onScrollRight: () => handleScrollRight('date'),
+              onScrollLeft: () => handleScrollLeft('date'),
+              child: SizedBox(
+                width: 200,
+                child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        DateFormat('yyyy년 M월 d일', 'ko_KR').format(
                             controller.images![controller.index].createdAt),
-                        style: const TextStyle(fontSize: 14)),
-                  ]),
+                        style: const TextStyle(fontSize: 18),
+                      ),
+                      Text(
+                          DateFormat('a h시 m분', 'ko_KR').format(
+                              controller.images![controller.index].createdAt),
+                          style: const TextStyle(fontSize: 14)),
+                    ]),
+              ),
             ),
             actions: [
               // IconButton(icon: Icon(CupertinoIcons.ellipsis_circle, size: 30), onPressed: (){
@@ -140,101 +177,111 @@ class _ImageDetailState extends State<ImageDetail> {
                   })
             ]),
         body: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(
-              height: 400,
-              child: PageView.builder(
-                itemCount: controller.images!.length,
-                controller: PageController(
-                    viewportFraction: 1, initialPage: controller.index),
-                onPageChanged: controller.setCurrentIndex,
-                itemBuilder: (context, index) {
-                  final image = controller.images![index];
-                  return Hero(
-                      tag: arguments == 'search'
-                          ? 'search_image_$index'
-                          : 'image_$index',
-                      child: Image.file(File(image.getPath()),
-                          fit: BoxFit.contain));
-                },
-              ),
-            ),
-            const SizedBox(height: 14),
-            // caption
-            Container(
-                margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
-                child: controller.images![controller.index].caption != null
-                    ? Text(controller.images![controller.index].caption)
-                    : Row(children: [
-                        Container(
-                          margin: const EdgeInsets.only(right: 8),
-                          height: 16,
-                          width: 16,
-                          child: const CupertinoActivityIndicator(
-                            radius: 8,
-                          ),
-                        ),
-                        const Text('캡션을 생성중이에요...')
-                      ])),
-            const SizedBox(height: 8),
-            // genearl tags
-            // Container(
-            //   margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
-            //   child: Wrap(spacing: 8, runSpacing: 8, children: [
-            //     ...List.generate(
-            //         controller.images![controller.index].generalTags?.length ??
-            //             0,
-            //         (index) => _tag(
-            //             controller
-            //                 .images![controller.index].generalTags![index],
-            //             type: 'general')),
-            //     ...List.generate(
-            //         controller.images![controller.index].alertTags?.length ?? 0,
-            //         (index) => _tag(
-            //             controller.images![controller.index].alertTags![index],
-            //             type: 'alert'))
-            //   ]),
-            // ),
-            // const SizedBox(height: 8),
-            // user memo
-            // Container(
-            //     margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
-            //     child:
-            //         Text(controller.images![controller.index].userMemo ?? '')),
-
-            // annotations
-            Container(
-              margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
-              width: double.infinity,
-              alignment: Alignment.center,
-              child: CupertinoSlidingSegmentedControl(
-                groupValue: _selectedSegment,
-                onValueChanged: ((Annotation? value) {
-                  if (value != null) {
-                    setState(() {
-                      _selectedSegment = value;
-                    });
-                  }
-                }),
-                children: const <Annotation, Widget>{
-                  Annotation.description: Text('자세한 설명'),
-                  Annotation.ocr: Text('글자 인식'),
-                },
-              ),
-            ),
-            Expanded(
-              child: Container(
-                margin:
-                    const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                child: SingleChildScrollView(
-                  child: _annotation(
-                      controller.images![controller.index], _selectedSegment),
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                height: 400,
+                child: PageView.builder(
+                  itemCount: controller.images!.length,
+                  controller: pageController,
+                  onPageChanged: controller.setCurrentIndex,
+                  itemBuilder: (context, index) {
+                    final image = controller.images![index];
+                    return Hero(
+                        tag: arguments == 'search'
+                            ? 'search_image_$index'
+                            : 'image_$index',
+                        child: Image.file(File(image.getPath()),
+                            fit: BoxFit.contain));
+                  },
                 ),
               ),
-            ),
-          ],
-        )));
+              const SizedBox(height: 14),
+              // caption
+              Semantics(
+                liveRegion: _liveRegion == 'caption',
+                onScrollRight: () => handleScrollRight('caption'),
+                onScrollLeft: () => handleScrollLeft('caption'),
+                child: Container(
+                    margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
+                    child: controller.images![controller.index].caption != null
+                        ? Text(controller.images![controller.index].caption)
+                        : Row(children: [
+                            Container(
+                              margin: const EdgeInsets.only(right: 8),
+                              height: 16,
+                              width: 16,
+                              child: const CupertinoActivityIndicator(
+                                radius: 8,
+                              ),
+                            ),
+                            const Text('캡션을 생성중이에요...')
+                          ])),
+              ),
+              const SizedBox(height: 8),
+              // genearl tags
+              // Container(
+              //   margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
+              //   child: Wrap(spacing: 8, runSpacing: 8, children: [
+              //     ...List.generate(
+              //         controller.images![controller.index].generalTags?.length ??
+              //             0,
+              //         (index) => _tag(
+              //             controller
+              //                 .images![controller.index].generalTags![index],
+              //             type: 'general')),
+              //     ...List.generate(
+              //         controller.images![controller.index].alertTags?.length ?? 0,
+              //         (index) => _tag(
+              //             controller.images![controller.index].alertTags![index],
+              //             type: 'alert'))
+              //   ]),
+              // ),
+              // const SizedBox(height: 8),
+              // user memo
+              // Container(
+              //     margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
+              //     child:
+              //         Text(controller.images![controller.index].userMemo ?? '')),
+          
+              // annotations
+              Container(
+                margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
+                width: double.infinity,
+                alignment: Alignment.center,
+                child: CupertinoSlidingSegmentedControl(
+                  groupValue: _selectedSegment,
+                  onValueChanged: ((Annotation? value) {
+                    if (value != null) {
+                      setState(() {
+                        _selectedSegment = value;
+                      });
+                    }
+                  }),
+                  children: const <Annotation, Widget>{
+                    Annotation.description: Text('자세한 설명'),
+                    Annotation.ocr: Text('글자 인식'),
+                  },
+                ),
+              ),
+              Expanded(
+                child: Container(
+                  margin:
+                      const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                  child: SingleChildScrollView(
+                    child: Semantics(
+                      liveRegion: _liveRegion == 'description',
+                      onScrollRight: () => handleScrollRight('description'),
+                      onScrollLeft: () => handleScrollLeft('description'),
+                      child: _annotation(
+                          controller.images![controller.index], _selectedSegment),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ));
   }
 
   Widget _annotation(LocalImage image, Annotation type) {
@@ -327,7 +374,26 @@ class _ImageDetailState extends State<ImageDetail> {
           const Text("설명을 생성중이에요...")
         ]);
       } else {
-        return Text(image.description!);
+        return GestureDetector(
+          onLongPress:() {
+            // copy to clipboard
+            Clipboard.setData(ClipboardData(text: image.description!));
+            Get.snackbar(
+              '복사 완료',
+              '자세한 설명이 클립보드에 복사되었습니다.',
+              backgroundColor: Colors.grey[800], // 배경색 설정
+              colorText: Colors.white, // 텍스트 색상 설정
+              snackPosition: SnackPosition.BOTTOM, // 화면 하단에 위치
+              margin: const EdgeInsets.all(0), // 마진 제거
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 24), // 좌우 패딩 조정
+              duration: const Duration(seconds: 2), // 지속 시간 설정
+              snackStyle: SnackStyle.GROUNDED,
+            );
+            // semantic announcement
+            SemanticsService.announce('자세한 설명이 클립보드에 복사되었습니다.', ui.TextDirection.ltr);
+          },
+          child: Text(image.description!)
+        );
       }
     } else {
       if (image.ocr == null) {
@@ -377,7 +443,24 @@ class _ImageDetailState extends State<ImageDetail> {
           const Text("글자를 인식중이에요...")
         ]);
       } else {
-        return Text(image.ocr! != "" ? image.ocr! : "인식된 글자가 없습니다.");
+        return GestureDetector(
+          onLongPress: () {
+            Clipboard.setData(ClipboardData(text: image.ocr!));
+            Get.snackbar(
+              '복사 완료',
+              '인식된 글자가 클립보드에 복사되었습니다.',
+              backgroundColor: Colors.grey[800], // 배경색 설정
+              colorText: Colors.white, // 텍스트 색상 설정
+              snackPosition: SnackPosition.BOTTOM, // 화면 하단에 위치
+              margin: const EdgeInsets.all(0), // 마진 제거
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 24), // 좌우 패딩 조정
+              duration: const Duration(seconds: 2), // 지속 시간 설정
+              snackStyle: SnackStyle.GROUNDED,
+            );
+            // semantic announcement
+            SemanticsService.announce('인식된 글자가 클립보드에 복사되었습니다.', ui.TextDirection.ltr);
+          },
+          child: Text(image.ocr! != "" ? image.ocr! : "인식된 글자가 없습니다."));
       }
     }
   }

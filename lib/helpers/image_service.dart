@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'db_helper.dart';
@@ -16,6 +17,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'firestore_helper.dart';
 import '../app_config.dart';
 import 'package:in_app_review/in_app_review.dart';
+import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 
 final ImagePicker _picker = ImagePicker();
 final dbHelper = DatabaseHelper();
@@ -34,7 +36,6 @@ class ImageService {
       return true;
     } catch (e) {
       // 등록된 인스턴스가 아직 없음
-      print('none!');
       return false;
     }
   }
@@ -82,50 +83,59 @@ class ImageService {
     await dbHelper.insertImages(localImages);
     localImageController.addImages(localImages);
 
-    
+    // ringtone
+    FlutterRingtonePlayer().play(
+      fromAsset: 'assets/sounds/sent_message.wav', 
+      ios: IosSounds.sentMessage,
+    );
+
     final List<File> thumbImageFiles =
       await Future.wait(localImageFilePaths.map((path_) async {
       final File imageFile = File(path.join(AppConfig.appDocumentsDirectory!, path_['thumbSavedPath']!));
       return imageFile;
     }));
 
+    ///////////////////////////////////////////////////////
+    //   2024.05.22. 이미지 파일 업로드 및 태그/임베딩 생성 스킵   //
+    ///////////////////////////////////////////////////////
+
     // second stage: get cloud urls
-    List<String> imageUrls = await uploadImagesToFirebase(thumbImageFiles);
+    // List<String> imageUrls = await uploadImagesToFirebase(thumbImageFiles);
 
     // third stage: get tags, embeddings
-    List<List<String>> tags =
-        await ApiService.fetchAzureTags(imageUrls, maxNumber: 5, caption: false, lang: "ko");
+    // List<List<String>> tags =
+    //     await ApiService.fetchAzureTags(imageUrls, maxNumber: 5, caption: false, lang: "ko");
 
-    List<List<double>> embeddings =
-        await ApiService.fetchImageEmbeddings(imageUrls);
+    // List<List<double>> embeddings =
+    //     await ApiService.fetchImageEmbeddings(imageUrls);
 
-    for (int i = 0; i < localImages.length; i++) {
-      localImages[i].imageUrl = imageUrls[i];
-      localImages[i].generalTags = tags[i];
-      localImages[i].vector = embeddings[i];
-      // if we using azure caption
-      // localImages[i].caption = tags[localImages.length][i];
-    }
+    // for (int i = 0; i < localImages.length; i++) {
+    //   localImages[i].imageUrl = imageUrls[i];
+    //   localImages[i].generalTags = tags[i];
+    //   localImages[i].vector = embeddings[i];
+    //   // if we using azure caption
+    //   // localImages[i].caption = tags[localImages.length][i];
+    // }
 
     // second UI update
-    await dbHelper.updateImagesByMaps(localImages
-        .map((e) => {
-              for (var key in [
-                'assetPath',
-                'imageUrl',
-                'generalTags',
-                'vector',
-              ])
-                key: e.toMap()[key]
-            })
-        .toList());
-    // localImageController.updateImages(localImages);
-    if(_findSearchImageController()) {
-      searchImagesController!.updateImages(localImages);
-    }
+    // await dbHelper.updateImagesByMaps(localImages
+    //     .map((e) => {
+    //           for (var key in [
+    //             'assetPath',
+    //             'imageUrl',
+    //             'generalTags',
+    //             'vector',
+    //           ])
+    //             key: e.toMap()[key]
+    //         })
+    //     .toList());
+    // // localImageController.updateImages(localImages);
+    // if(_findSearchImageController()) {
+    //   searchImagesController!.updateImages(localImages);
+    // }
 
     // 4th stage: get captions
-    List<String> captions = await ApiService.fetchGPTCaptions(thumbImageFiles);
+    List<String> captions = await ApiService.fetchImageCaptions(thumbImageFiles);
 
     for (int i = 0; i < localImages.length; i++) {
       localImages[i].caption = captions[i];
@@ -141,9 +151,11 @@ class ImageService {
     if(_findSearchImageController()) {
       searchImagesController!.updateImages(localImages);
     }
+    
+    // Snackbar & Announce
     Get.snackbar(
-      '이미지 캡션 생성 완료', // 제목
-      '총 ${localImages.length}개의 이미지 캡션 생성이 완료되었습니다.', // 메시지
+      '사진 캡션 생성 완료', // 제목
+      '${localImages.length}장의 사진에 캡션 생성이 완료되었습니다.', // 메시지
       backgroundColor: Colors.grey[800], // 배경색 설정
       colorText: Colors.white, // 텍스트 색상 설정
       snackPosition: SnackPosition.BOTTOM, // 화면 하단에 위치
@@ -152,6 +164,9 @@ class ImageService {
       duration: const Duration(seconds: 4), // 지속 시간 설정
       snackStyle: SnackStyle.GROUNDED,
     );
+    
+    // semantic announce
+    Get.context?.findRenderObject()?.sendSemanticsEvent(AnnounceSemanticsEvent('${localImages.length}장의 사진에 캡션 생성이 완료되었습니다.', TextDirection.ltr));
 
     // 5th stage: firestore
     final firestoreIds = await FirestoreHelper.storeImages(localImages.map((e) => e.toMap()).toList());
@@ -169,9 +184,9 @@ class ImageService {
             })
         .toList());
 
-    if (await inAppReview.isAvailable()) {
-      inAppReview.requestReview();
-    }
+    // if (await inAppReview.isAvailable()) {
+    //   inAppReview.requestReview();
+    // }
   }
 
   static Future<void> getDescription(LocalImage image) async {
@@ -192,9 +207,11 @@ class ImageService {
     if(_findSearchImageController()) {
       searchImagesController!.updateImage(image);
     }
+
+    // Snackbar & Announce
     Get.snackbar(
-      '이미지 설명 생성 완료', // 제목
-      '이미지의 설명 생성이 완료되었습니다.', // 메시지
+      '자세한 설명 생성 완료', // 제목
+      '사진의 자세한 설명 생성이 완료되었습니다.', // 메시지
       backgroundColor: Colors.grey[800], // 배경색 설정
       colorText: Colors.white, // 텍스트 색상 설정
       snackPosition: SnackPosition.BOTTOM, // 화면 하단에 위치
@@ -203,6 +220,7 @@ class ImageService {
       duration: const Duration(seconds: 3), // 지속 시간 설정
       snackStyle: SnackStyle.GROUNDED,
     );
+    Get.context?.findRenderObject()?.sendSemanticsEvent(const AnnounceSemanticsEvent('사진의 자세한 설명 생성이 완료되었습니다.', TextDirection.ltr));
 
     if (await inAppReview.isAvailable()) {
       inAppReview.requestReview();
@@ -228,8 +246,8 @@ class ImageService {
       searchImagesController!.updateImage(image);
     }
     Get.snackbar(
-      '이미지 글자 인식 완료', // 제목
-      '이미지의 글자 인식이 완료되었습니다.', // 메시지
+      '글자 인식 완료', // 제목
+      '사진의 글자 인식이 완료되었습니다.', // 메시지
       backgroundColor: Colors.grey[800], // 배경색 설정
       colorText: Colors.white, // 텍스트 색상 설정
       snackPosition: SnackPosition.BOTTOM, // 화면 하단에 위치
@@ -238,6 +256,7 @@ class ImageService {
       duration: const Duration(seconds: 2), // 지속 시간 설정
       snackStyle: SnackStyle.GROUNDED,
     );
+    Get.context?.findRenderObject()?.sendSemanticsEvent(const AnnounceSemanticsEvent('사진의 글자 인식이 완료되었습니다.', TextDirection.ltr));
   }
 
   static Future<void> removeImage(LocalImage image) async {
