@@ -3,10 +3,13 @@ import 'package:get_storage/get_storage.dart';
 import 'package:get/get.dart';
 import 'package:flutter/cupertino.dart';
 import '../helpers/image_service.dart';
+import '../helpers/firestore_helper.dart';
+import '../helpers/utils.dart';
 import '../models/image.dart';
 import '../controllers/local_images_controller.dart';
-import '../components/notice_bottom_sheet.dart';
 import '../components/onboarding_bottom_sheet.dart';
+import '../components/invited_notice_bottom_sheet.dart';
+import '../components/inviting_notice_bottom_sheet.dart';
 import 'dart:io';
 import 'dart:ui';
 import 'package:intl/intl.dart';
@@ -16,7 +19,6 @@ class Home extends GetView<LocalImagesController> {
 
   final ScrollController _scrollController = ScrollController();
   
-
   @override
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -31,16 +33,26 @@ class Home extends GetView<LocalImagesController> {
           },
         );
       }
-      final isNoticed = box.read('isNoticed') ?? false;
-      // 2024-05-10 이전에만 노출
-      if (!isNoticed && DateTime.now().isBefore(DateTime(2024, 5, 10))) {
-        box.write('isNoticed', true);
-        showCupertinoModalPopup(
-          context: context,
-          builder: (BuildContext context) {
-            return const CupertinoPopupSurface(child: NoticeBottomSheet());
-          },
-        );
+      final isNoticed = box.read('isNoticed20240529') ?? false;
+      if (!isNoticed) {
+        FirestoreHelper.getUserCreatedAt().then((value) => {
+        if (value.isAfter(DateTime(2024, 5, 29).localTime) && value.isBefore(DateTime(2024, 6, 13).localTime)) {
+          showCupertinoModalPopup(
+            context: context,
+            builder: (BuildContext context) {
+              return const CupertinoPopupSurface(child: InvitedNoticeBottomSheet());
+            },
+          )
+        } else if (value.isBefore(DateTime(2024, 5, 29).localTime)) {
+          showCupertinoModalPopup(
+            context: context,
+            builder: (BuildContext context) {
+              return const CupertinoPopupSurface(child: InvitingNoticeBottomSheet());
+            },
+          )
+        }
+        });
+        box.write('isNoticed20240529', true);
       }
     });
     return Scaffold(

@@ -141,5 +141,71 @@ class FirestoreHelper {
       print(e.toString());
     }
   }
-  
+
+  // 사용자 생성 날짜 가져오기
+  static Future<DateTime> getUserCreatedAt() async {
+    String uid = await _getOrCreateUID();
+    try {
+      DocumentSnapshot userDocSnapshot =
+          await _firestore.collection('User').doc(uid).get();
+      return userDocSnapshot.get('createdAt').toDate();
+    } catch (e) {
+      print(e.toString());
+      return DateTime.now().localTime;
+    }
+  }
+
+  // 초대 코드 생성
+  static Future<String> getInvitationCode() async {
+    String uid = await _getOrCreateUID();
+    String invitationCode = _uuid.v4().substring(0, 6);
+
+    // 이미 생성 되었는지, invitationCode 필드가 존재하는지 확인
+    DocumentSnapshot userDocSnapshot =
+        await _firestore.collection('User').doc(uid).get();
+
+    try {
+      if (userDocSnapshot.get('invitationCode') != null) {
+        return userDocSnapshot.get('invitationCode');
+      }
+    } catch (e) {
+      print(e.toString());
+    }
+
+    // 없을 경우 신규 생성
+    try {
+      await _firestore.collection('User').doc(uid).update({
+        'invitationCode': invitationCode,
+      });
+      return invitationCode;
+    } catch (e) {
+      print(e.toString());
+      return '';
+    }
+  }
+
+  // 초대한 사용자 목록 추가 by 초대코드
+  static Future<bool> addInvitedUser(String invitationCode) async {
+    String uid = await _getOrCreateUID();
+
+    // find invitor by invitation code
+    QuerySnapshot invitorSnapshot = await _firestore
+        .collection('User')
+        .where('invitationCode', isEqualTo: invitationCode)
+        .get();
+    
+    if (invitorSnapshot.docs.isEmpty) {
+      return false;
+    }
+    // add invited user at invitor's document
+    try {
+      await _firestore.collection('User').doc(invitorSnapshot.docs.first.id).update({
+        'invitedUsers': FieldValue.arrayUnion([uid])
+      });
+      return true;
+    } catch (e) {
+      print(e.toString());
+      return false;
+    }
+  }
 }

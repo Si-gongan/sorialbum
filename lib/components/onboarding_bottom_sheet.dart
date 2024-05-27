@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:in_app_review/in_app_review.dart';
+import '../helpers/firestore_helper.dart';
+import '../helpers/utils.dart';
+import 'inviting_notice_bottom_sheet.dart';
+import 'invited_notice_bottom_sheet.dart';
 
 class OnboardingBottomSheet extends StatefulWidget {
   const OnboardingBottomSheet({super.key});
@@ -37,6 +41,34 @@ class _OnboardingBottomSheetState extends State<OnboardingBottomSheet> {
                               inherit: false, color: Colors.black, fontSize: 16, decoration: TextDecoration.underline)),
                       onTap: () {
                         Get.back();
+                      },
+                    ),
+                  ),
+                  Semantics(
+                    button: true,
+                    child: GestureDetector(
+                      child: const Text('친구초대 이벤트',
+                          style: TextStyle(
+                              inherit: false, color: Colors.black, fontSize: 16, decoration: TextDecoration.underline)),
+                      onTap: () {
+                        Get.back();
+                        FirestoreHelper.getUserCreatedAt().then((value) => {
+                        if (value.isAfter(DateTime(2024, 5, 29).localTime) && value.isBefore(DateTime(2024, 6, 13).localTime)) {
+                          showCupertinoModalPopup(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return const CupertinoPopupSurface(child: InvitedNoticeBottomSheet());
+                            },
+                          )
+                        } else if (value.isBefore(DateTime(2024, 5, 29).localTime)) {
+                          showCupertinoModalPopup(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return const CupertinoPopupSurface(child: InvitingNoticeBottomSheet());
+                            },
+                          )
+                        }
+                        });
                       },
                     ),
                   ),
