@@ -205,7 +205,25 @@ class _ImageDetailState extends State<ImageDetail> {
                 child: Container(
                     margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
                     child: controller.images![controller.index].caption != null
-                        ? Text(controller.images![controller.index].caption)
+                        ? GestureDetector(
+                          onLongPress: () {
+                            // copy to clipboard
+                            Clipboard.setData(ClipboardData(text: controller.images![controller.index].caption));
+                            Get.snackbar(
+                              '복사 완료',
+                              '캡션이 클립보드에 복사되었습니다.',
+                              backgroundColor: Colors.grey[800], // 배경색 설정
+                              colorText: Colors.white, // 텍스트 색상 설정
+                              snackPosition: SnackPosition.BOTTOM, // 화면 하단에 위치
+                              margin: const EdgeInsets.all(0), // 마진 제거
+                              padding: const EdgeInsets.fromLTRB(16, 16, 16, 24), // 좌우 패딩 조정
+                              duration: const Duration(seconds: 2), // 지속 시간 설정
+                              snackStyle: SnackStyle.GROUNDED,
+                            );
+                            // semantic announcement
+                            SemanticsService.announce('캡션이 클립보드에 복사되었습니다.', ui.TextDirection.ltr);
+                          },
+                          child: Text(controller.images![controller.index].caption))
                         : Row(children: [
                             Container(
                               margin: const EdgeInsets.only(right: 8),
