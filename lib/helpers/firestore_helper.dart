@@ -208,4 +208,25 @@ class FirestoreHelper {
       return false;
     }
   }
+
+  // 초대 이벤트 기간 정보 가져오기
+  static Future<Map<String, DateTime>> getInvitationEventPeriod() async {
+    try {
+      DocumentSnapshot eventDocSnapshot = await _firestore
+          .collection('Event')
+          .where('event_id', isEqualTo: '2024_invitation')
+          .get()
+          .then((value) => value.docs.first);
+      return {
+        'startAt': eventDocSnapshot.get('start').toDate(),
+        'endAt': eventDocSnapshot.get('end').toDate(),
+      };
+    } catch (e) {
+      print(e.toString());
+      return {
+        'startAt': DateTime.now().localTime,
+        'endAt': DateTime.now().localTime,
+      };
+    }
+  }
 }

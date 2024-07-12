@@ -36,7 +36,7 @@ class Home extends GetView<LocalImagesController> {
       final isNoticed = box.read('isNoticed20240529') ?? false;
       if (!isNoticed) {
         FirestoreHelper.getUserCreatedAt().then((value) => {
-        if (value.isAfter(DateTime(2024, 5, 29).localTime) && value.isBefore(DateTime(2024, 6, 13).localTime)) {
+        if (value.isAfter(DateTime(2024, 5, 29).localTime) && value.isBefore(DateTime(2024, 8, 1).localTime)) {
           showCupertinoModalPopup(
             context: context,
             builder: (BuildContext context) {
