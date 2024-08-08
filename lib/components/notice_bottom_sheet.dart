@@ -29,33 +29,6 @@ class _NoticeBottomSheetState extends State<NoticeBottomSheet> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Row(
-                //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                //   children: [
-                //     Semantics(
-                //       button: true,
-                //       child: GestureDetector(
-                //         child: const Text('닫기',
-                //             style: TextStyle(
-                //                 inherit: false, color: Colors.black, fontSize: 16, decoration: TextDecoration.underline)),
-                //         onTap: () {
-                //           Get.back();
-                //         },
-                //       ),
-                //     ),
-                //     Semantics(
-                //       button: true,
-                //       child: GestureDetector(
-                //         child: const Text('리뷰 남기기',
-                //             style: TextStyle(
-                //                 inherit: false, color: Colors.black, fontSize: 16, decoration: TextDecoration.underline)),
-                //         onTap: () {
-                //           inAppReview.openStoreListing(appStoreId: '6478280385');
-                //         },
-                //       ),
-                //     ),
-                //   ],
-                // ),
                 const SizedBox(height: 10),
                 Semantics(
                   container: true,
@@ -66,27 +39,22 @@ class _NoticeBottomSheetState extends State<NoticeBottomSheet> {
                 ),
                 const SizedBox(height: 24),
                 const Text(
-                    "안녕하세요, 소리앨범입니다.\n소리앨범을 사랑해주셔서 정말 감사드립니다.",
+                    "안녕하세요, 소리앨범을 운영하고 있는 시공간입니다!\n소리앨범을 사랑해 주셔서 정말 감사드립니다.",
                     style: TextStyle(
                         inherit: false, color: Colors.black, fontSize: 16)),
                 const SizedBox(height: 18),
                 const Text(
-                    "더 나은 서비스를 제공하기 위해,\n서비스를 잘 이용해 주시고 계시는 분들을 대상으로 인터뷰를 진행하고자 합니다.",
+                    "더 나은 소리앨범으로 발전하기 위해, 소리앨범을 잘 사용하시는 유저 분들을 대상으로 서비스 인터뷰를 진행하고자 합니다.",
                     style: TextStyle(
                         inherit: false, color: Colors.black, fontSize: 16)),
                 const SizedBox(height: 18),
                 const Text(
-                    "인터뷰는 소리앨범을 어떻게 사용하시는 지에 대한 질문으로 진행될 예정이며, 약 60분 정도 소요됩니다.",
+                    "인터뷰는 약 40~60분 정도 소요되며,\n대면 또는 비대면으로 진행될 예정입니다.",
                     style: TextStyle(
                         inherit: false, color: Colors.black, fontSize: 16)),
                 const SizedBox(height: 18),
                 const Text(
-                    "직접 만나서 진행하는 것을 생각하고 있으나 조정이 가능합니다.",
-                    style: TextStyle(
-                        inherit: false, color: Colors.black, fontSize: 16)),
-                const SizedBox(height: 18),
-                const Text(
-                    "참여해 주시는 분들께는 사례금 1만원과, 인터뷰 당일 교통비, 카페비를 지급해 드리고자 하니 많은 관심 부탁드립니다!",
+                    "참여해 주시는 분들께는 사례금 1만원과,  대면 인터뷰 진행 시 당일 교통비, 카페비를 지급해 드리고자 하니 많은 관심 부탁드립니다!",
                     style: TextStyle(
                         inherit: false, color: Colors.black, fontSize: 16)),
                 const SizedBox(height: 24),

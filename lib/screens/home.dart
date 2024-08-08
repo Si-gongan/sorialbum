@@ -4,12 +4,11 @@ import 'package:get/get.dart';
 import 'package:flutter/cupertino.dart';
 import '../helpers/image_service.dart';
 import '../helpers/firestore_helper.dart';
-import '../helpers/utils.dart';
 import '../models/image.dart';
 import '../controllers/local_images_controller.dart';
 import '../components/onboarding_bottom_sheet.dart';
-import '../components/invited_notice_bottom_sheet.dart';
-import '../components/inviting_notice_bottom_sheet.dart';
+import '../components/event_winning_notice_bottom_sheet.dart';
+import '../components/notice_bottom_sheet.dart';
 import 'dart:io';
 import 'dart:ui';
 import 'package:intl/intl.dart';
@@ -33,27 +32,56 @@ class Home extends GetView<LocalImagesController> {
           },
         );
       }
-      final isNoticed = box.read('isNoticed20240529') ?? false;
-      if (!isNoticed) {
-        FirestoreHelper.getUserCreatedAt().then((value) => {
-        if (value.isAfter(DateTime(2024, 5, 29).localTime) && value.isBefore(DateTime(2024, 8, 1).localTime)) {
-          showCupertinoModalPopup(
-            context: context,
-            builder: (BuildContext context) {
-              return const CupertinoPopupSurface(child: InvitedNoticeBottomSheet());
-            },
-          )
-        } else if (value.isBefore(DateTime(2024, 5, 29).localTime)) {
-          showCupertinoModalPopup(
-            context: context,
-            builder: (BuildContext context) {
-              return const CupertinoPopupSurface(child: InvitingNoticeBottomSheet());
-            },
-          )
-        }
+      final isInterviewNoticed = box.read('isNoticed20240801') ?? false;
+      if (!isInterviewNoticed) {
+        FirestoreHelper.getImageNum().then((value) => {
+          if (value >= 20) {
+            showCupertinoModalPopup(
+              context: context,
+              builder: (BuildContext context) {
+                return const CupertinoPopupSurface(child: NoticeBottomSheet());
+              },
+            )
+          },
+          box.write('isNoticed20240808', true)
         });
-        box.write('isNoticed20240529', true);
       }
+      final isEventNoticed = box.read('isNoticed0808') ?? false;
+      if (!isEventNoticed) {
+        FirestoreHelper.getUID().then((value) => {
+          if (value == 'cb5b690e-dd1d-4677-aadc-4b3f89d40c30') {
+            showCupertinoModalPopup(
+              context: context,
+              builder: (BuildContext context) {
+                return const CupertinoPopupSurface(child: EventWinningNoticeBottomSheet());
+              },
+            )
+          },
+          box.write('isNoticed0808', true)
+        });
+      }
+      // 친구 초대 이벤트
+      // final isNoticed = box.read('isNoticed20240529') ?? false;
+      // if (!isNoticed) {
+      //   FirestoreHelper.getUserCreatedAt().then((value) => {
+      //   if (value.isAfter(DateTime(2024, 5, 29).localTime) && value.isBefore(DateTime(2024, 8, 1).localTime)) {
+      //     showCupertinoModalPopup(
+      //       context: context,
+      //       builder: (BuildContext context) {
+      //         return const CupertinoPopupSurface(child: InvitedNoticeBottomSheet());
+      //       },
+      //     )
+      //   } else if (value.isBefore(DateTime(2024, 5, 29).localTime)) {
+      //     showCupertinoModalPopup(
+      //       context: context,
+      //       builder: (BuildContext context) {
+      //         return const CupertinoPopupSurface(child: InvitingNoticeBottomSheet());
+      //       },
+      //     )
+      //   }
+      //   });
+      //   box.write('isNoticed20240529', true);
+      // }
     });
     return Scaffold(
         appBar: AppBar(

@@ -16,8 +16,7 @@ class OnboardingBottomSheet extends StatefulWidget {
 
 class _OnboardingBottomSheetState extends State<OnboardingBottomSheet> {
   final InAppReview inAppReview = InAppReview.instance;
-  final isInEventPeriod = DateTime.now().localTime.isAfter(DateTime(2024, 7, 1).localTime) && DateTime.now().localTime.isBefore(DateTime(2024, 8, 1).localTime);
-
+  // final isInEventPeriod = DateTime.now().localTime.isAfter(DateTime(2024, 7, 1).localTime) && DateTime.now().localTime.isBefore(DateTime(2024, 8, 1).localTime);
   @override
   Widget build(BuildContext context) {
 
@@ -45,36 +44,36 @@ class _OnboardingBottomSheetState extends State<OnboardingBottomSheet> {
                       },
                     ),
                   ),
-                  isInEventPeriod ? 
-                  Semantics(
-                    button: true,
-                    child: GestureDetector(
-                      child: const Text('친구초대 이벤트',
-                          style: TextStyle(
-                              inherit: false, color: Colors.black, fontSize: 16, decoration: TextDecoration.underline)),
-                      onTap: () async {
-                        final time = await FirestoreHelper.getUserCreatedAt();
-                        Get.back();
-                        if (time.isAfter(DateTime(2024, 5, 29).localTime) && time.isBefore(DateTime(2024, 8, 1).localTime)) {
-                          showCupertinoModalPopup(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return const CupertinoPopupSurface(child: InvitedNoticeBottomSheet());
-                            },
-                          );
-                        } else if (time.isBefore(DateTime(2024, 5, 29).localTime)) {
-                          showCupertinoModalPopup(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return const CupertinoPopupSurface(child: InvitingNoticeBottomSheet());
-                            },
-                          );
-                        } else {
-                          print('이벤트 종료');
-                        }
-                      }
-                    ),
-                  ) : Container(),
+                  // isInEventPeriod ? 
+                  // Semantics(
+                  //   button: true,
+                  //   child: GestureDetector(
+                  //     child: const Text('친구초대 이벤트',
+                  //         style: TextStyle(
+                  //             inherit: false, color: Colors.black, fontSize: 16, decoration: TextDecoration.underline)),
+                  //     onTap: () async {
+                  //       final time = await FirestoreHelper.getUserCreatedAt();
+                  //       Get.back();
+                  //       if (time.isAfter(DateTime(2024, 5, 29).localTime) && time.isBefore(DateTime(2024, 8, 1).localTime)) {
+                  //         showCupertinoModalPopup(
+                  //           context: context,
+                  //           builder: (BuildContext context) {
+                  //             return const CupertinoPopupSurface(child: InvitedNoticeBottomSheet());
+                  //           },
+                  //         );
+                  //       } else if (time.isBefore(DateTime(2024, 5, 29).localTime)) {
+                  //         showCupertinoModalPopup(
+                  //           context: context,
+                  //           builder: (BuildContext context) {
+                  //             return const CupertinoPopupSurface(child: InvitingNoticeBottomSheet());
+                  //           },
+                  //         );
+                  //       } else {
+                  //         print('이벤트 종료');
+                  //       }
+                  //     }
+                  //   ),
+                  // ) : Container(),
                   Semantics(
                     button: true,
                     child: GestureDetector(

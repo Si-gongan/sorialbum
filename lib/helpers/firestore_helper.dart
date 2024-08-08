@@ -19,6 +19,10 @@ class FirestoreHelper {
     return uid;
   }
 
+  static Future<String> getUID() async {
+    return await _getOrCreateUID();
+  }
+
   // 사용자 문서 생성 또는 확인
   static Future<void> createUserDocumentIfNeeded() async {
     String uid = await _getOrCreateUID();
@@ -132,13 +136,27 @@ class FirestoreHelper {
   // 인터뷰이 연락처 정보 저장
   static Future<void> saveIntervieweeContact(String contact) async {
     String uid = await _getOrCreateUID();
-
     try {
       await _firestore.collection('User').doc(uid).update({
-        'intervieweeContact': contact,
+        'intervieweeContact': FieldValue.arrayUnion([
+          {'contact': contact, 'createdAt': DateTime.now().localTime}
+        ]),
       });
     } catch (e) {
       print(e.toString());
+    }
+  }
+
+  // 이미지 업로드 개수 가져오기
+  static Future<int> getImageNum() async {
+    String uid = await _getOrCreateUID();
+    try {
+      DocumentSnapshot userDocSnapshot =
+          await _firestore.collection('User').doc(uid).get();
+      return userDocSnapshot.get('imageNum');
+    } catch (e) {
+      print(e.toString());
+      return 0;
     }
   }
 
