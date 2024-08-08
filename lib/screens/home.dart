@@ -43,7 +43,7 @@ class Home extends GetView<LocalImagesController> {
               },
             )
           },
-          box.write('isNoticed20240808', true)
+          box.write('isNoticed20240801', true)
         });
       }
       final isEventNoticed = box.read('isNoticed0808') ?? false;
